@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Time Blocking</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0a0a0f;color:#f0f0f5;padding:20px;display:flex;justify-content:center}
+.container{width:100%;max-width:800px}
+h1{text-align:center;margin-bottom:20px;background:linear-gradient(135deg,#0984e3,#74b9ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.controls{display:flex;gap:10px;margin-bottom:20px}
+input[type="text"], input[type="time"]{padding:12px;background:#16162a;border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;outline:none}
+input[type="text"]{flex:1}
+button{padding:12px 20px;background:#0984e3;color:#fff;border:none;border-radius:8px;font-weight:bold;cursor:pointer}
+.schedule{display:flex;flex-direction:column;gap:10px}
+.block{display:flex;background:#16162a;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.05)}
+.block-time{width:120px;background:#1a1a2e;padding:15px;font-weight:bold;color:#74b9ff;display:flex;align-items:center;justify-content:center;border-right:1px solid rgba(255,255,255,0.05)}
+.block-task{flex:1;padding:15px}
+.block-delete{background:none;border:none;color:#ff7675;padding:15px;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>⏰ Time Blocking</h1>
+    <div class="controls">
+        <input type="time" id="startTime" value="09:00">
+        <input type="time" id="endTime" value="10:00">
+        <input type="text" id="taskInput" placeholder="What are you focusing on?">
+        <button onclick="addBlock()">Add Block</button>
+    </div>
+    <div class="schedule" id="schedule"></div>
+</div>
+<script>
+let blocks = JSON.parse(localStorage.getItem('hub_timeblocks')) || [];
+
+function save() { localStorage.setItem('hub_timeblocks', JSON.stringify(blocks)); }
+
+function addBlock() {
+    const startTime = document.getElementById('startTime').value;
+    const endTime = document.getElementById('endTime').value;
+    const task = document.getElementById('taskInput').value;
+    
+    if(startTime && endTime && task) {
+        blocks.push({ id: Date.now(), startTime, endTime, task });
+        blocks.sort((a,b) => a.startTime.localeCompare(b.startTime));
+        document.getElementById('taskInput').value = '';
+        save(); render();
+    }
+}
+
+function deleteBlock(id) {
+    blocks = blocks.filter(b => b.id !== id);
+    save(); render();
+}
+
+function render() {
+    const schedule = document.getElementById('schedule');
+    schedule.innerHTML = '';
+    
+    blocks.forEach(block => {
+        const div = document.createElement('div');
+        div.className = 'block';
+        div.innerHTML = `
+            <div class="block-time">${block.startTime} - ${block.endTime}</div>
+            <div class="block-task">${block.task}</div>
+            <button class="block-delete" onclick="deleteBlock(${block.id})">✖</button>
+        `;
+        schedule.appendChild(div);
+    });
+}
+render();
+</script>
+</body>
+</html>

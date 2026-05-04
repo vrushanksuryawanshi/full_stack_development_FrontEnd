@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Game</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0a0a0f;color:#f0f0f5;display:flex;align-items:center;justify-content:center;min-height:100vh}
+.container{background:#16162a;padding:40px;border-radius:24px;width:100%;max-width:600px;box-shadow:0 15px 35px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.05)}
+h2{margin-bottom:20px;font-size:24px;line-height:1.4}
+.options{display:flex;flex-direction:column;gap:12px}
+.option-btn{padding:15px;background:#1a1a2e;border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#f0f0f5;font-size:16px;cursor:pointer;text-align:left;transition:all 0.2s}
+.option-btn:hover{background:#2a2a3e}
+.option-btn.correct{background:#00b894;border-color:#00b894}
+.option-btn.wrong{background:#ff7675;border-color:#ff7675}
+.next-btn{margin-top:20px;padding:12px 24px;background:#6c5ce7;color:#fff;border:none;border-radius:12px;font-size:16px;cursor:pointer;display:none;float:right}
+.stats{display:flex;justify-content:space-between;color:#a0a0b8;margin-bottom:20px;font-size:14px;font-weight:bold}
+.hide{display:none !important}
+</style>
+</head>
+<body>
+<div class="container" id="quizContainer">
+    <div class="stats">
+        <span id="questionNum">Question 1/5</span>
+        <span id="scoreText">Score: 0</span>
+    </div>
+    <h2 id="question">Loading...</h2>
+    <div class="options" id="options"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next</button>
+</div>
+<div class="container hide" id="resultContainer" style="text-align:center">
+    <h2>Quiz Completed! 🎉</h2>
+    <p style="font-size:24px;margin:20px 0" id="finalScore">You scored: 0/5</p>
+    <button class="option-btn" style="text-align:center;background:#6c5ce7" onclick="initQuiz()">Restart Quiz</button>
+</div>
+
+<script>
+const quizData = [
+    {q: "What does HTML stand for?", opts: ["Hyper Text Preprocessor", "Hyper Text Markup Language", "Hyper Text Multiple Language", "Hyper Tool Multi Language"], ans: 1},
+    {q: "What does CSS stand for?", opts: ["Cascading Style Sheet", "Common Style Sheet", "Computer Style Sheet", "Colorful Style Sheet"], ans: 0},
+    {q: "Which language runs in a web browser?", opts: ["Java", "C", "Python", "JavaScript"], ans: 3},
+    {q: "What year was JavaScript launched?", opts: ["1996", "1995", "1994", "None of the above"], ans: 1},
+    {q: "Which tag is used for linking?", opts: ["<link>", "<a>", "<href>", "<src>"], ans: 1}
+];
+
+let currQ = 0;
+let score = 0;
+let answered = false;
+
+const qEl = document.getElementById("question");
+const optsEl = document.getElementById("options");
+const nextBtn = document.getElementById("nextBtn");
+const qNumEl = document.getElementById("questionNum");
+const scoreEl = document.getElementById("scoreText");
+
+function initQuiz() {
+    currQ = 0; score = 0;
+    document.getElementById("quizContainer").classList.remove("hide");
+    document.getElementById("resultContainer").classList.add("hide");
+    loadQuestion();
+}
+
+function loadQuestion() {
+    answered = false;
+    nextBtn.style.display = "none";
+    qNumEl.textContent = `Question ${currQ + 1}/${quizData.length}`;
+    scoreEl.textContent = `Score: ${score}`;
+    
+    const q = quizData[currQ];
+    qEl.textContent = q.q;
+    optsEl.innerHTML = "";
+    
+    q.opts.forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        btn.textContent = opt;
+        btn.className = "option-btn";
+        btn.onclick = () => selectOpt(idx, btn);
+        optsEl.appendChild(btn);
+    });
+}
+
+function selectOpt(idx, btn) {
+    if(answered) return;
+    answered = true;
+    
+    const isCorrect = idx === quizData[currQ].ans;
+    if(isCorrect) {
+        btn.classList.add("correct");
+        score++;
+        scoreEl.textContent = `Score: ${score}`;
+    } else {
+        btn.classList.add("wrong");
+        optsEl.children[quizData[currQ].ans].classList.add("correct");
+    }
+    
+    nextBtn.style.display = "block";
+    nextBtn.textContent = currQ === quizData.length - 1 ? "Finish" : "Next";
+}
+
+function nextQuestion() {
+    currQ++;
+    if(currQ < quizData.length) {
+        loadQuestion();
+    } else {
+        document.getElementById("quizContainer").classList.add("hide");
+        document.getElementById("resultContainer").classList.remove("hide");
+        document.getElementById("finalScore").textContent = `You scored: ${score} / ${quizData.length}`;
+    }
+}
+
+initQuiz();
+</script>
+</body>
+</html>

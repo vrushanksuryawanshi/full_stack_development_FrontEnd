@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>To-Do List</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',system-ui,sans-serif;background:#0a0a0f;color:#f0f0f5;min-height:100vh;padding:20px}
+.container{max-width:600px;margin:0 auto}
+h1{font-size:28px;font-weight:800;margin-bottom:20px;background:linear-gradient(135deg,#6c5ce7,#a29bfe);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.add-form{display:flex;gap:8px;margin-bottom:20px}
+.add-form input,.add-form select{padding:12px 16px;background:#1a1a2e;border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#f0f0f5;font-family:inherit;font-size:14px;outline:none}
+.add-form input:focus,.add-form select:focus{border-color:#6c5ce7;box-shadow:0 0 0 3px rgba(108,92,231,0.2)}
+.add-form input{flex:1}
+.add-form select{width:120px}
+.add-btn{padding:12px 20px;background:linear-gradient(135deg,#6c5ce7,#a29bfe);border:none;border-radius:10px;color:#fff;font-weight:600;cursor:pointer;font-size:14px;transition:transform 0.15s,opacity 0.15s}
+.add-btn:hover{transform:scale(1.05)}
+.filters{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.filter-btn{padding:6px 14px;background:#1a1a2e;border:1px solid rgba(255,255,255,0.06);border-radius:20px;color:#a0a0b8;font-size:12px;cursor:pointer;font-family:inherit;transition:all 0.15s}
+.filter-btn.active{background:#6c5ce7;color:#fff;border-color:#6c5ce7}
+.todo-list{display:flex;flex-direction:column;gap:8px}
+.todo-item{display:flex;align-items:center;gap:12px;padding:14px 16px;background:#16162a;border:1px solid rgba(255,255,255,0.06);border-radius:12px;transition:all 0.2s;animation:slideIn 0.3s ease}
+@keyframes slideIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+.todo-item:hover{border-color:rgba(255,255,255,0.12);background:#1e1e3a}
+.todo-item.done{opacity:0.5}
+.todo-item.done .todo-text{text-decoration:line-through}
+.todo-check{width:20px;height:20px;border:2px solid #6c5ce7;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0}
+.todo-check.checked{background:#6c5ce7}
+.todo-check.checked::after{content:'✓';color:#fff;font-size:12px}
+.todo-text{flex:1;font-size:14px}
+.todo-meta{display:flex;align-items:center;gap:8px}
+.priority-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.priority-high{background:#e17055}
+.priority-medium{background:#fdcb6e}
+.priority-low{background:#00b894}
+.todo-deadline{font-size:11px;color:#6a6a80}
+.todo-delete{background:none;border:none;color:#6a6a80;cursor:pointer;font-size:18px;padding:4px;transition:color 0.15s}
+.todo-delete:hover{color:#e17055}
+.empty{text-align:center;padding:40px;color:#6a6a80;font-size:14px}
+.deadline-input{width:130px}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>✅ To-Do List</h1>
+    <div class="add-form">
+        <input type="text" id="todoInput" placeholder="Add a new task...">
+        <select id="prioritySelect">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+        </select>
+        <input type="date" id="deadlineInput" class="deadline-input">
+        <button class="add-btn" id="addBtn">Add</button>
+    </div>
+    <div class="filters">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="active">Active</button>
+        <button class="filter-btn" data-filter="done">Completed</button>
+        <button class="filter-btn" data-filter="high">🔴 High</button>
+        <button class="filter-btn" data-filter="medium">🟡 Medium</button>
+        <button class="filter-btn" data-filter="low">🟢 Low</button>
+    </div>
+    <div class="todo-list" id="todoList"></div>
+</div>
+<script>
+let todos = JSON.parse(localStorage.getItem('hub_todos') || '[]');
+let filter = 'all';
+
+const todoInput = document.getElementById('todoInput');
+const prioritySelect = document.getElementById('prioritySelect');
+const deadlineInput = document.getElementById('deadlineInput');
+const todoList = document.getElementById('todoList');
+
+function saveTodos() { localStorage.setItem('hub_todos', JSON.stringify(todos)); }
+
+function addTodo() {
+    const text = todoInput.value.trim();
+    if (!text) return;
+    todos.unshift({ id: Date.now(), text, priority: prioritySelect.value, deadline: deadlineInput.value, done: false });
+    todoInput.value = '';
+    deadlineInput.value = '';
+    saveTodos();
+    render();
+}
+
+function toggleTodo(id) {
+    const t = todos.find(t => t.id === id);
+    if (t) t.done = !t.done;
+    saveTodos(); render();
+}
+
+function deleteTodo(id) {
+    todos = todos.filter(t => t.id !== id);
+    saveTodos(); render();
+}
+
+function render() {
+    let filtered = todos;
+    if (filter === 'active') filtered = todos.filter(t => !t.done);
+    else if (filter === 'done') filtered = todos.filter(t => t.done);
+    else if (['high','medium','low'].includes(filter)) filtered = todos.filter(t => t.priority === filter);
+
+    if (filtered.length === 0) {
+        todoList.innerHTML = '<div class="empty">No tasks found. Add one above!</div>';
+        return;
+    }
+    todoList.innerHTML = filtered.map(t => `
+        <div class="todo-item ${t.done ? 'done' : ''}">
+            <div class="todo-check ${t.done ? 'checked' : ''}" onclick="toggleTodo(${t.id})"></div>
+            <span class="todo-text">${t.text}</span>
+            <div class="todo-meta">
+                <span class="priority-dot priority-${t.priority}"></span>
+                ${t.deadline ? `<span class="todo-deadline">${t.deadline}</span>` : ''}
+            </div>
+            <button class="todo-delete" onclick="deleteTodo(${t.id})">&times;</button>
+        </div>
+    `).join('');
+}
+
+document.getElementById('addBtn').addEventListener('click', addTodo);
+todoInput.addEventListener('keydown', e => { if (e.key === 'Enter') addTodo(); });
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        filter = btn.dataset.filter;
+        render();
+    });
+});
+
+render();
+</script>
+</body>
+</html>

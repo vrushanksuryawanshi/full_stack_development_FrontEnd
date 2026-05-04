@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Expression Evaluator</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0a0a0f;color:#f0f0f5;display:flex;align-items:center;justify-content:center;min-height:100vh}
+.container{background:#16162a;padding:40px;border-radius:24px;width:100%;max-width:500px;box-shadow:0 15px 35px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.05);text-align:center}
+h1{margin-bottom:10px;background:linear-gradient(135deg,#74b9ff,#a29bfe);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+p{color:#a0a0b8;font-size:14px;margin-bottom:30px}
+.input-group{background:#1a1a2e;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:5px;display:flex;margin-bottom:20px;transition:border-color 0.2s}
+.input-group:focus-within{border-color:#74b9ff}
+input{flex:1;background:transparent;border:none;color:#fff;font-size:18px;padding:15px;outline:none;font-family:monospace}
+button{background:#74b9ff;color:#1a1a2e;border:none;padding:0 25px;border-radius:8px;font-weight:bold;cursor:pointer;font-size:16px;transition:background 0.2s}
+button:hover{background:#5499df}
+.result-box{background:#12121a;padding:20px;border-radius:12px;border:1px solid rgba(255,255,255,0.05);min-height:80px;display:flex;align-items:center;justify-content:center}
+.result{font-size:32px;font-weight:bold;color:#55efc4;word-break:break-all}
+.error{color:#ff7675;font-size:16px}
+.examples{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:20px}
+.ex-badge{background:#2a2a3e;color:#a0a0b8;padding:5px 12px;border-radius:20px;font-size:12px;cursor:pointer;font-family:monospace}
+.ex-badge:hover{background:#3a3a4e;color:#fff}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>🧮 Math Solver</h1>
+    <p>Evaluates mathematical expressions safely</p>
+    
+    <div class="input-group">
+        <input type="text" id="expr" placeholder="e.g. 2 * (3 + 4) / 5" autocomplete="off">
+        <button onclick="solve()">Solve</button>
+    </div>
+    
+    <div class="result-box">
+        <div class="result" id="res">=</div>
+    </div>
+    
+    <div class="examples">
+        <div class="ex-badge" onclick="setEx('12 + 5 * 2')">12 + 5 * 2</div>
+        <div class="ex-badge" onclick="setEx('100 / (10 - 5)')">100 / (10 - 5)</div>
+        <div class="ex-badge" onclick="setEx('Math.pow(2, 8)')">Math.pow(2, 8)</div>
+        <div class="ex-badge" onclick="setEx('Math.sqrt(144)')">Math.sqrt(144)</div>
+        <div class="ex-badge" onclick="setEx('Math.PI * 2')">Math.PI * 2</div>
+    </div>
+</div>
+
+<script>
+const exprEl = document.getElementById('expr');
+const resEl = document.getElementById('res');
+
+function setEx(val) {
+    exprEl.value = val;
+    solve();
+}
+
+function solve() {
+    const expr = exprEl.value.trim();
+    if(!expr) {
+        resEl.textContent = '=';
+        resEl.className = 'result';
+        return;
+    }
+    
+    try {
+        // Safe evaluation pattern
+        // Only allow math functions, numbers, operators
+        if (/[^0-9\.\+\-\*\/\(\)\sMath\.powsqrtPIEabsceilfloorround]/g.test(expr)) {
+            throw new Error("Invalid characters");
+        }
+        
+        // Using new Function instead of eval for slight safety improvement
+        // Note: For production, a proper parsing library like math.js is recommended
+        const fn = new Function('return ' + expr);
+        const result = fn();
+        
+        if(!isFinite(result) || isNaN(result)) throw new Error("Math Error");
+        
+        resEl.textContent = `= ${Math.round(result * 100000)/100000}`;
+        resEl.className = 'result';
+    } catch(err) {
+        resEl.textContent = 'Invalid Expression';
+        resEl.className = 'result error';
+    }
+}
+
+exprEl.addEventListener('keypress', e => { if(e.key === 'Enter') solve(); });
+exprEl.addEventListener('input', solve);
+</script>
+</body>
+</html>

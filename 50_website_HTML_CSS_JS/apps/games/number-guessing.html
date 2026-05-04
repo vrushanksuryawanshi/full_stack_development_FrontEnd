@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Number Guessing Game</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0a0a0f;color:#f0f0f5;display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column}
+.container{text-align:center;background:#16162a;padding:40px;border-radius:24px;border:1px solid rgba(255,255,255,0.05);max-width:400px;width:90%;box-shadow:0 15px 35px rgba(0,0,0,0.5)}
+h1{margin-bottom:10px;background:linear-gradient(135deg,#6c5ce7,#a29bfe);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+p{color:#a0a0b8;margin-bottom:20px}
+.input-group{display:flex;gap:10px;margin-bottom:20px}
+input{flex:1;padding:15px;font-size:20px;text-align:center;background:#1a1a2e;border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#fff;outline:none}
+input:focus{border-color:#6c5ce7}
+button{padding:15px 25px;background:#6c5ce7;color:#fff;border:none;border-radius:12px;font-weight:bold;cursor:pointer;transition:transform 0.2s}
+button:hover{transform:translateY(-2px)}
+.message{font-size:18px;font-weight:bold;margin-top:20px;min-height:30px}
+.attempts{margin-top:15px;color:#6a6a80;font-size:14px}
+.guesses{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-top:15px}
+.guess-badge{background:#2a2a3e;padding:5px 10px;border-radius:12px;font-size:14px;color:#a0a0b8}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>🔮 Number Guesser</h1>
+    <p>Guess a number between 1 and 100.</p>
+    <div class="input-group">
+        <input type="number" id="guessInput" min="1" max="100" placeholder="00">
+        <button onclick="checkGuess()" id="guessBtn">Guess</button>
+    </div>
+    <div class="message" id="message"></div>
+    <div class="attempts">Attempts left: <span id="attempts">10</span></div>
+    <div class="guesses" id="guesses"></div>
+    <button style="display:none;width:100%;margin-top:20px;background:#00b894" id="restartBtn" onclick="initGame()">Play Again</button>
+</div>
+
+<script>
+let target, attemptsLeft, previousGuesses;
+const msgEl = document.getElementById('message');
+const attemptsEl = document.getElementById('attempts');
+const guessesEl = document.getElementById('guesses');
+const inputEl = document.getElementById('guessInput');
+const btnEl = document.getElementById('guessBtn');
+const restartBtn = document.getElementById('restartBtn');
+
+function initGame() {
+    target = Math.floor(Math.random() * 100) + 1;
+    attemptsLeft = 10;
+    previousGuesses = [];
+    msgEl.textContent = '';
+    guessesEl.innerHTML = '';
+    attemptsEl.textContent = attemptsLeft;
+    inputEl.value = '';
+    inputEl.disabled = false;
+    btnEl.disabled = false;
+    restartBtn.style.display = 'none';
+    inputEl.focus();
+}
+
+function checkGuess() {
+    const guess = parseInt(inputEl.value);
+    if(isNaN(guess) || guess < 1 || guess > 100) {
+        msgEl.textContent = 'Please enter a valid number (1-100)';
+        msgEl.style.color = '#ff7675';
+        return;
+    }
+
+    previousGuesses.push(guess);
+    const badge = document.createElement('span');
+    badge.className = 'guess-badge';
+    badge.textContent = guess;
+    guessesEl.appendChild(badge);
+
+    if(guess === target) {
+        gameOver(true, `You got it! It was ${target}! 🎉`);
+    } else {
+        attemptsLeft--;
+        attemptsEl.textContent = attemptsLeft;
+        
+        if(attemptsLeft === 0) {
+            gameOver(false, `Game Over! The number was ${target}.`);
+        } else {
+            msgEl.textContent = guess < target ? 'Too low! Try again.' : 'Too high! Try again.';
+            msgEl.style.color = '#fdcb6e';
+        }
+    }
+    inputEl.value = '';
+    inputEl.focus();
+}
+
+function gameOver(won, msg) {
+    inputEl.disabled = true;
+    btnEl.disabled = true;
+    msgEl.textContent = msg;
+    msgEl.style.color = won ? '#00b894' : '#ff7675';
+    restartBtn.style.display = 'block';
+}
+
+inputEl.addEventListener('keypress', e => { if(e.key === 'Enter') checkGuess(); });
+initGame();
+</script>
+</body>
+</html>

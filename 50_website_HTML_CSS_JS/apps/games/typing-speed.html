@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Typing Speed Test</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0a0a0f;color:#f0f0f5;display:flex;align-items:center;justify-content:center;min-height:100vh}
+.container{background:#16162a;padding:40px;border-radius:24px;width:100%;max-width:700px;border:1px solid rgba(255,255,255,0.05)}
+h1{margin-bottom:20px;text-align:center;color:#6c5ce7}
+.quote-display{font-size:24px;line-height:1.5;margin-bottom:20px;background:#12121a;padding:20px;border-radius:12px;color:#a0a0b8;user-select:none}
+.quote-display span{transition:color 0.1s}
+.correct{color:#00b894}
+.incorrect{color:#ff7675;background:rgba(255,118,117,0.2);border-radius:3px}
+.quote-input{width:100%;padding:15px;background:#1a1a2e;border:1px solid rgba(255,255,255,0.2);border-radius:12px;color:#fff;font-size:20px;outline:none;font-family:inherit;margin-bottom:20px}
+.quote-input:focus{border-color:#6c5ce7}
+.stats{display:flex;justify-content:space-between;font-size:18px;font-weight:bold;color:#a0a0b8}
+.stat-box{text-align:center;background:#1a1a2e;padding:15px 30px;border-radius:12px;flex:1;margin:0 10px}
+.stat-val{display:block;font-size:32px;color:#fff;margin-top:5px}
+.restart-btn{display:block;width:100%;margin-top:20px;padding:15px;background:#6c5ce7;color:#fff;border:none;border-radius:12px;font-size:18px;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>⌨️ Typing Speed Test</h1>
+    <div class="quote-display" id="quoteDisplay"></div>
+    <input type="text" class="quote-input" id="quoteInput" placeholder="Start typing here..." autofocus>
+    <div class="stats">
+        <div class="stat-box">WPM<span class="stat-val" id="wpm">0</span></div>
+        <div class="stat-box">Time<span class="stat-val" id="timer">60</span></div>
+        <div class="stat-box">Accuracy<span class="stat-val" id="accuracy">100%</span></div>
+    </div>
+    <button class="restart-btn" onclick="initTest()">Restart Test</button>
+</div>
+
+<script>
+const quotes = [
+    "The quick brown fox jumps over the lazy dog.",
+    "Success is not final, failure is not fatal: it is the courage to continue that counts.",
+    "Programming isn't about what you know; it's about what you can figure out.",
+    "Life is what happens when you're busy making other plans."
+];
+
+const quoteDisplay = document.getElementById('quoteDisplay');
+const quoteInput = document.getElementById('quoteInput');
+const timerEl = document.getElementById('timer');
+const wpmEl = document.getElementById('wpm');
+const accEl = document.getElementById('accuracy');
+
+let timeLeft = 60, timeInterval = null;
+let isPlaying = false, totalTyped = 0, correctTyped = 0;
+
+function getRandomQuote() {
+    return quotes[Math.floor(Math.random() * quotes.length)];
+}
+
+function initTest() {
+    clearInterval(timeInterval);
+    const quote = getRandomQuote();
+    quoteDisplay.innerHTML = '';
+    quote.split('').forEach(char => {
+        const span = document.createElement('span');
+        span.innerText = char;
+        quoteDisplay.appendChild(span);
+    });
+    quoteInput.value = '';
+    timeLeft = 60; timerEl.innerText = timeLeft;
+    wpmEl.innerText = '0'; accEl.innerText = '100%';
+    totalTyped = 0; correctTyped = 0;
+    isPlaying = false;
+    quoteInput.disabled = false;
+    quoteInput.focus();
+}
+
+quoteInput.addEventListener('input', () => {
+    if(!isPlaying) { startTimer(); isPlaying = true; }
+    
+    const arrQuote = quoteDisplay.querySelectorAll('span');
+    const arrVal = quoteInput.value.split('');
+    let correct = true;
+    correctTyped = 0; totalTyped = arrVal.length;
+
+    arrQuote.forEach((charSpan, idx) => {
+        const char = arrVal[idx];
+        if (char == null) {
+            charSpan.classList.remove('correct', 'incorrect');
+            correct = false;
+        } else if (char === charSpan.innerText) {
+            charSpan.classList.add('correct');
+            charSpan.classList.remove('incorrect');
+            correctTyped++;
+        } else {
+            charSpan.classList.add('incorrect');
+            charSpan.classList.remove('correct');
+            correct = false;
+        }
+    });
+
+    // Calc accuracy
+    const acc = totalTyped === 0 ? 100 : Math.round((correctTyped / totalTyped) * 100);
+    accEl.innerText = `${acc}%`;
+
+    // Calc WPM
+    const words = correctTyped / 5;
+    const minutes = (60 - timeLeft) / 60;
+    wpmEl.innerText = minutes > 0 ? Math.round(words / minutes) : 0;
+
+    if(correct) initTest(); // Next quote if finished perfectly
+});
+
+function startTimer() {
+    timeInterval = setInterval(() => {
+        timeLeft--;
+        timerEl.innerText = timeLeft;
+        if(timeLeft === 0) {
+            clearInterval(timeInterval);
+            quoteInput.disabled = true;
+        }
+    }, 1000);
+}
+
+initTest();
+</script>
+</body>
+</html>

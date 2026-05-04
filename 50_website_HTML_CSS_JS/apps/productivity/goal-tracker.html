@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Goal Tracker</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0a0a0f;color:#f0f0f5;padding:20px}
+.container{max-width:600px;margin:0 auto}
+h1{text-align:center;margin-bottom:30px;background:linear-gradient(135deg,#fd79a8,#e84393);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.form-container{background:#16162a;padding:20px;border-radius:16px;margin-bottom:30px;border:1px solid rgba(255,255,255,0.05)}
+.input-group{display:flex;gap:10px;margin-bottom:15px}
+input{flex:1;padding:12px;background:#1a1a2e;border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;outline:none}
+button{padding:12px 20px;background:#fd79a8;color:#fff;border:none;border-radius:8px;font-weight:bold;cursor:pointer;transition:transform 0.2s}
+button:hover{transform:translateY(-2px)}
+.goals-list{display:flex;flex-direction:column;gap:15px}
+.goal-card{background:#16162a;padding:20px;border-radius:16px;border:1px solid rgba(255,255,255,0.05);position:relative;overflow:hidden}
+.goal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
+.goal-title{font-size:18px;font-weight:bold}
+.goal-delete{background:none;color:#ff7675;padding:5px;cursor:pointer}
+.progress-container{background:#1a1a2e;height:12px;border-radius:6px;overflow:hidden;margin-bottom:10px}
+.progress-bar{height:100%;background:linear-gradient(90deg,#fd79a8,#e84393);width:0%;transition:width 0.3s}
+.goal-controls{display:flex;justify-content:space-between;align-items:center;font-size:14px;color:#a0a0b8}
+.update-btns{display:flex;gap:5px}
+.update-btns button{padding:5px 10px;background:#2a2a3e;color:#fff;font-size:12px}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>🎯 Goal Tracker</h1>
+    <div class="form-container">
+        <div class="input-group">
+            <input type="text" id="goalName" placeholder="What is your goal? (e.g. Read 10 books)">
+            <input type="number" id="goalTarget" placeholder="Target number" style="flex:0.4">
+        </div>
+        <button style="width:100%" onclick="addGoal()">Add Goal</button>
+    </div>
+    <div class="goals-list" id="goalsList"></div>
+</div>
+<script>
+let goals = JSON.parse(localStorage.getItem('hub_goals')) || [];
+
+function save() { localStorage.setItem('hub_goals', JSON.stringify(goals)); }
+
+function addGoal() {
+    const name = document.getElementById('goalName').value;
+    const target = parseInt(document.getElementById('goalTarget').value);
+    
+    if(name && target > 0) {
+        goals.push({ id: Date.now(), name, target, current: 0 });
+        document.getElementById('goalName').value = '';
+        document.getElementById('goalTarget').value = '';
+        save(); render();
+    }
+}
+
+function updateGoal(id, amount) {
+    const goal = goals.find(g => g.id === id);
+    if(goal) {
+        goal.current = Math.max(0, Math.min(goal.target, goal.current + amount));
+        save(); render();
+    }
+}
+
+function deleteGoal(id) {
+    goals = goals.filter(g => g.id !== id);
+    save(); render();
+}
+
+function render() {
+    const list = document.getElementById('goalsList');
+    list.innerHTML = '';
+    
+    goals.forEach(goal => {
+        const percent = Math.round((goal.current / goal.target) * 100);
+        const card = document.createElement('div');
+        card.className = 'goal-card';
+        card.innerHTML = `
+            <div class="goal-header">
+                <div class="goal-title">${goal.name}</div>
+                <button class="goal-delete" onclick="deleteGoal(${goal.id})">✖</button>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar" style="width: ${percent}%"></div>
+            </div>
+            <div class="goal-controls">
+                <span>Progress: ${goal.current} / ${goal.target} (${percent}%)</span>
+                <div class="update-btns">
+                    <button onclick="updateGoal(${goal.id}, -1)">-1</button>
+                    <button onclick="updateGoal(${goal.id}, 1)">+1</button>
+                </div>
+            </div>
+        `;
+        list.appendChild(card);
+    });
+}
+render();
+</script>
+</body>
+</html>

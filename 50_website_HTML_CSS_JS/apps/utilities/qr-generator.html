@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QR Code Generator</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0a0a0f;color:#f0f0f5;display:flex;align-items:center;justify-content:center;min-height:100vh}
+.container{background:#16162a;padding:40px;border-radius:24px;width:100%;max-width:400px;box-shadow:0 15px 35px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.05);text-align:center}
+h1{margin-bottom:10px;background:linear-gradient(135deg,#6c5ce7,#a29bfe);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+p{color:#a0a0b8;font-size:14px;margin-bottom:25px}
+input{width:100%;padding:15px;background:#1a1a2e;border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#fff;outline:none;font-size:16px;margin-bottom:20px;transition:border-color 0.2s}
+input:focus{border-color:#6c5ce7}
+button{width:100%;padding:15px;background:#6c5ce7;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:bold;cursor:pointer;transition:transform 0.2s}
+button:hover{transform:translateY(-2px)}
+.qr-box{margin-top:30px;padding:20px;background:#fff;border-radius:16px;display:none;animation:fadeIn 0.4s}
+@keyframes fadeIn{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}
+.qr-box img{width:100%;height:auto;display:block}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>📱 QR Generator</h1>
+    <p>Enter text or URL to generate QR code</p>
+    <input type="text" id="qrText" placeholder="e.g. https://google.com">
+    <button id="genBtn" onclick="generateQR()">Generate QR Code</button>
+    
+    <div class="qr-box" id="qrBox">
+        <img id="qrImage" src="" alt="QR Code">
+    </div>
+</div>
+
+<script>
+const qrText = document.getElementById('qrText');
+const qrBox = document.getElementById('qrBox');
+const qrImage = document.getElementById('qrImage');
+const genBtn = document.getElementById('genBtn');
+
+function generateQR() {
+    if(!qrText.value.trim()) {
+        qrText.classList.add('error');
+        setTimeout(()=>qrText.classList.remove('error'), 1000);
+        return;
+    }
+    
+    genBtn.textContent = 'Generating...';
+    
+    // Using goqr.me API
+    const url = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrText.value)}`;
+    
+    qrImage.src = url;
+    
+    qrImage.onload = () => {
+        qrBox.style.display = 'block';
+        genBtn.textContent = 'Generate QR Code';
+    }
+}
+
+qrText.addEventListener('keypress', e => { if(e.key === 'Enter') generateQR(); });
+</script>
+</body>
+</html>

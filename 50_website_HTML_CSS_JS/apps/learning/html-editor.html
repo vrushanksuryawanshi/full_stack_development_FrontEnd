@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HTML Live Editor</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0a0a0f;color:#f0f0f5;height:100vh;display:flex;flex-direction:column}
+.header{padding:10px 20px;background:#16162a;display:flex;align-items:center;border-bottom:1px solid rgba(255,255,255,0.05)}
+h1{font-size:18px;color:#55efc4;margin-right:20px}
+.controls{display:flex;gap:10px}
+button{background:#1a1a2e;color:#a0a0b8;border:1px solid rgba(255,255,255,0.1);padding:5px 15px;border-radius:6px;cursor:pointer}
+button.active{background:#55efc4;color:#1a1a2e}
+.main{flex:1;display:flex;overflow:hidden}
+.editors{flex:1;display:flex;flex-direction:column;border-right:1px solid rgba(255,255,255,0.05)}
+.editor{flex:1;display:flex;flex-direction:column}
+.editor-title{background:#12121a;padding:5px 15px;font-size:12px;color:#a0a0b8;font-weight:bold;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,0.05);border-top:1px solid rgba(255,255,255,0.05)}
+textarea{flex:1;background:#0a0a0f;color:#e0e0e0;font-family:monospace;font-size:14px;padding:15px;border:none;outline:none;resize:none}
+#htmlCode{color:#ff7675}
+#cssCode{color:#74b9ff}
+#jsCode{color:#fdcb6e}
+.preview{flex:1;background:#fff;position:relative}
+iframe{width:100%;height:100%;border:none}
+</style>
+</head>
+<body>
+<div class="header">
+    <h1>🌐 HTML Editor</h1>
+    <div class="controls">
+        <button onclick="toggleView('html')" class="active" id="btn-html">HTML</button>
+        <button onclick="toggleView('css')" class="active" id="btn-css">CSS</button>
+        <button onclick="toggleView('js')" class="active" id="btn-js">JS</button>
+    </div>
+</div>
+<div class="main">
+    <div class="editors">
+        <div class="editor" id="wrap-html">
+            <div class="editor-title">HTML</div>
+            <textarea id="htmlCode" onkeyup="run()"></textarea>
+        </div>
+        <div class="editor" id="wrap-css">
+            <div class="editor-title">CSS</div>
+            <textarea id="cssCode" onkeyup="run()"></textarea>
+        </div>
+        <div class="editor" id="wrap-js">
+            <div class="editor-title">JS</div>
+            <textarea id="jsCode" onkeyup="run()"></textarea>
+        </div>
+    </div>
+    <div class="preview">
+        <iframe id="output"></iframe>
+    </div>
+</div>
+
+<script>
+const htmlCode = document.getElementById('htmlCode');
+const cssCode = document.getElementById('cssCode');
+const jsCode = document.getElementById('jsCode');
+const output = document.getElementById('output');
+
+// default template
+htmlCode.value = '<h1>Hello World</h1>\n<p>Welcome to Live Editor</p>';
+cssCode.value = 'body {\n  font-family: sans-serif;\n  text-align: center;\n  padding-top: 50px;\n}\nh1 {\n  color: #6c5ce7;\n}';
+
+function run() {
+    output.contentDocument.body.innerHTML = htmlCode.value + "<style>" + cssCode.value + "</style>";
+    output.contentWindow.eval(jsCode.value);
+}
+
+function toggleView(type) {
+    const wrap = document.getElementById('wrap-' + type);
+    const btn = document.getElementById('btn-' + type);
+    if(wrap.style.display === 'none') {
+        wrap.style.display = 'flex';
+        btn.classList.add('active');
+    } else {
+        wrap.style.display = 'none';
+        btn.classList.remove('active');
+    }
+}
+
+run();
+</script>
+</body>
+</html>

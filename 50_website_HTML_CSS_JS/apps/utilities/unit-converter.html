@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit Converter</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0a0a0f;color:#f0f0f5;display:flex;align-items:center;justify-content:center;min-height:100vh}
+.container{background:#16162a;padding:40px;border-radius:24px;width:100%;max-width:500px;box-shadow:0 15px 35px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.05)}
+h1{margin-bottom:30px;text-align:center;background:linear-gradient(135deg,#00b894,#55efc4);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.category-select{width:100%;padding:15px;background:#0e0e18;border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#fff;font-size:16px;margin-bottom:30px;outline:none}
+.converter-box{display:flex;flex-direction:column;gap:15px}
+.input-group{display:flex;background:#1a1a2e;border:1px solid rgba(255,255,255,0.1);border-radius:12px;overflow:hidden}
+.input-group input{flex:1;padding:15px;background:transparent;border:none;color:#fff;font-size:20px;outline:none}
+.input-group select{padding:15px;background:#2a2a3e;border:none;border-left:1px solid rgba(255,255,255,0.1);color:#a0a0b8;font-size:14px;outline:none;cursor:pointer}
+.swap-btn{align-self:center;background:#00b894;color:#fff;border:none;width:40px;height:40px;border-radius:50%;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 0.2s}
+.swap-btn:hover{transform:rotate(180deg)}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>📐 Unit Converter</h1>
+    <select class="category-select" id="category" onchange="updateUnits()">
+        <option value="length">Length</option>
+        <option value="weight">Weight / Mass</option>
+        <option value="temperature">Temperature</option>
+    </select>
+    
+    <div class="converter-box">
+        <div class="input-group">
+            <input type="number" id="input1" placeholder="0" oninput="convert('1')">
+            <select id="unit1" onchange="convert('1')"></select>
+        </div>
+        <button class="swap-btn" onclick="swap()">⇅</button>
+        <div class="input-group">
+            <input type="number" id="input2" placeholder="0" oninput="convert('2')">
+            <select id="unit2" onchange="convert('2')"></select>
+        </div>
+    </div>
+</div>
+
+<script>
+const units = {
+    length: { meter: 1, kilometer: 0.001, centimeter: 100, millimeter: 1000, mile: 0.000621371, yard: 1.09361, foot: 3.28084, inch: 39.3701 },
+    weight: { kilogram: 1, gram: 1000, milligram: 1000000, metricTon: 0.001, pound: 2.20462, ounce: 35.274 },
+    temperature: { celsius: 'C', fahrenheit: 'F', kelvin: 'K' }
+};
+
+const catEl = document.getElementById('category');
+const u1El = document.getElementById('unit1');
+const u2El = document.getElementById('unit2');
+const in1El = document.getElementById('input1');
+const in2El = document.getElementById('input2');
+
+function updateUnits() {
+    const cat = catEl.value;
+    const opts = Object.keys(units[cat]);
+    
+    u1El.innerHTML = ''; u2El.innerHTML = '';
+    opts.forEach(opt => {
+        u1El.add(new Option(opt.charAt(0).toUpperCase() + opt.slice(1), opt));
+        u2El.add(new Option(opt.charAt(0).toUpperCase() + opt.slice(1), opt));
+    });
+    u2El.selectedIndex = 1 % opts.length; // select 2nd option by default
+    convert('1');
+}
+
+function swap() {
+    const temp = u1El.value;
+    u1El.value = u2El.value;
+    u2El.value = temp;
+    convert('1');
+}
+
+function convert(source) {
+    const cat = catEl.value;
+    const u1 = u1El.value, u2 = u2El.value;
+    
+    if(cat === 'temperature') {
+        let cels;
+        if(source === '1') {
+            const v1 = parseFloat(in1El.value);
+            if(isNaN(v1)) { in2El.value = ''; return; }
+            if(u1 === 'celsius') cels = v1;
+            else if(u1 === 'fahrenheit') cels = (v1 - 32) * 5/9;
+            else cels = v1 - 273.15;
+            
+            if(u2 === 'celsius') in2El.value = cels.toFixed(2);
+            else if(u2 === 'fahrenheit') in2El.value = (cels * 9/5 + 32).toFixed(2);
+            else in2El.value = (cels + 273.15).toFixed(2);
+        } else {
+            const v2 = parseFloat(in2El.value);
+            if(isNaN(v2)) { in1El.value = ''; return; }
+            if(u2 === 'celsius') cels = v2;
+            else if(u2 === 'fahrenheit') cels = (v2 - 32) * 5/9;
+            else cels = v2 - 273.15;
+            
+            if(u1 === 'celsius') in1El.value = cels.toFixed(2);
+            else if(u1 === 'fahrenheit') in1El.value = (cels * 9/5 + 32).toFixed(2);
+            else in1El.value = (cels + 273.15).toFixed(2);
+        }
+        return;
+    }
+
+    // Length & Weight (ratio based)
+    if(source === '1') {
+        const v1 = parseFloat(in1El.value);
+        if(isNaN(v1)) { in2El.value = ''; return; }
+        const base = v1 / units[cat][u1];
+        in2El.value = Number((base * units[cat][u2]).toPrecision(6));
+    } else {
+        const v2 = parseFloat(in2El.value);
+        if(isNaN(v2)) { in1El.value = ''; return; }
+        const base = v2 / units[cat][u2];
+        in1El.value = Number((base * units[cat][u1]).toPrecision(6));
+    }
+}
+
+updateUnits();
+</script>
+</body>
+</html>

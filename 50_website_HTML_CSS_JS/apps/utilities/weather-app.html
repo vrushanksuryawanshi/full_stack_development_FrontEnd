@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weather App</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0a0a0f;color:#f0f0f5;display:flex;align-items:center;justify-content:center;min-height:100vh}
+.container{background:linear-gradient(135deg,#16162a,#1e1e3a);padding:40px;border-radius:30px;width:100%;max-width:400px;box-shadow:0 20px 50px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.05)}
+.search{display:flex;gap:10px;margin-bottom:30px}
+.search input{flex:1;padding:15px;background:#1a1a2e;border:1px solid rgba(255,255,255,0.1);border-radius:15px;color:#fff;outline:none;font-size:16px}
+.search button{background:#00b894;color:#fff;border:none;width:50px;border-radius:15px;cursor:pointer;font-size:20px;transition:transform 0.2s}
+.search button:hover{transform:scale(1.05)}
+.weather-main{text-align:center;display:none}
+.weather-main.active{display:block;animation:fadeIn 0.5s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.city{font-size:32px;font-weight:bold;margin-bottom:10px}
+.date{color:#a0a0b8;font-size:14px;margin-bottom:20px}
+.temp{font-size:64px;font-weight:900;margin-bottom:10px;background:linear-gradient(135deg,#00b894,#55efc4);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.desc{font-size:20px;text-transform:capitalize;margin-bottom:30px}
+.details{display:flex;justify-content:space-between;background:#1a1a2e;padding:20px;border-radius:20px}
+.detail-item{text-align:center}
+.detail-label{font-size:12px;color:#a0a0b8;margin-bottom:5px;text-transform:uppercase}
+.detail-val{font-size:16px;font-weight:bold}
+.error{color:#ff7675;text-align:center;display:none}
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="search">
+        <input type="text" id="searchInp" placeholder="Enter city name..." autocomplete="off">
+        <button onclick="getWeather()">🔍</button>
+    </div>
+    <div class="error" id="errorMsg">City not found.</div>
+    <div class="weather-main" id="weatherMain">
+        <div class="city" id="city">London</div>
+        <div class="date" id="date">Mon, 12 Oct</div>
+        <div class="temp" id="temp">22°C</div>
+        <div class="desc" id="desc">Partly Cloudy</div>
+        <div class="details">
+            <div class="detail-item">
+                <div class="detail-label">Humidity</div>
+                <div class="detail-val" id="humidity">64%</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Wind</div>
+                <div class="detail-val" id="wind">12 km/h</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Feels Like</div>
+                <div class="detail-val" id="feels">21°C</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// For demo, we'll use a mock weather response. 
+// In production, replace with OpenWeatherMap API key:
+// const API_KEY = 'your_api_key';
+
+const searchInp = document.getElementById('searchInp');
+const weatherMain = document.getElementById('weatherMain');
+const errorMsg = document.getElementById('errorMsg');
+
+const getMockWeather = (city) => {
+    return {
+        name: city.charAt(0).toUpperCase() + city.slice(1),
+        main: { temp: Math.floor(Math.random() * 30 + 5), humidity: Math.floor(Math.random() * 50 + 40), feels_like: Math.floor(Math.random() * 30 + 5) },
+        weather: [{ description: ['sunny', 'cloudy', 'rainy', 'clear'][Math.floor(Math.random() * 4)] }],
+        wind: { speed: Math.floor(Math.random() * 20 + 1) }
+    };
+};
+
+function getWeather() {
+    const city = searchInp.value.trim();
+    if(!city) return;
+    
+    // Simulate API Call
+    weatherMain.classList.remove('active');
+    errorMsg.style.display = 'none';
+    
+    setTimeout(() => {
+        if(city.toLowerCase() === 'error') { // test error
+            errorMsg.style.display = 'block';
+            return;
+        }
+        
+        const data = getMockWeather(city);
+        
+        document.getElementById('city').textContent = data.name;
+        document.getElementById('date').textContent = new Date().toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
+        document.getElementById('temp').textContent = `${data.main.temp}°C`;
+        document.getElementById('desc').textContent = data.weather[0].description;
+        document.getElementById('humidity').textContent = `${data.main.humidity}%`;
+        document.getElementById('wind').textContent = `${data.wind.speed} km/h`;
+        document.getElementById('feels').textContent = `${data.main.feels_like}°C`;
+        
+        weatherMain.classList.add('active');
+    }, 500);
+}
+
+searchInp.addEventListener('keypress', e => { if(e.key === 'Enter') getWeather(); });
+
+// Init with default city
+searchInp.value = 'New York';
+getWeather();
+</script>
+</body>
+</html>

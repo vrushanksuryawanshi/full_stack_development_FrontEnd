@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Font Pairing Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0a0a0f;color:#f0f0f5;display:flex;padding:20px;gap:20px;min-height:100vh}
+@media(max-width:768px){body{flex-direction:column}}
+.controls{width:300px;background:#16162a;padding:20px;border-radius:16px;border:1px solid rgba(255,255,255,0.05);display:flex;flex-direction:column;gap:15px}
+h1{font-size:20px;margin-bottom:10px;background:linear-gradient(135deg,#fdcb6e,#e17055);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+label{color:#a0a0b8;font-size:12px;font-weight:bold;text-transform:uppercase}
+select{width:100%;background:#1a1a2e;border:1px solid rgba(255,255,255,0.1);color:#fff;padding:12px;border-radius:8px;outline:none;font-size:14px;margin-top:5px}
+button{padding:12px;background:#6c5ce7;color:#fff;border:none;border-radius:8px;font-weight:bold;cursor:pointer;transition:background 0.2s;margin-top:10px}
+button:hover{background:#5a4bcf}
+.code-out{background:#0a0a0f;padding:15px;border-radius:8px;font-family:monospace;font-size:12px;color:#55efc4;border:1px solid rgba(255,255,255,0.05);white-space:pre-wrap;margin-top:auto}
+
+.preview{flex:1;background:#fff;color:#1a1a2e;border-radius:16px;padding:60px;overflow-y:auto}
+.hero-title{font-size:64px;font-weight:900;margin-bottom:20px;line-height:1.1;letter-spacing:-1px}
+.hero-desc{font-size:24px;line-height:1.5;color:#4a4a5a;margin-bottom:40px}
+.article-title{font-size:32px;font-weight:700;margin-bottom:15px;margin-top:40px}
+.article-text{font-size:18px;line-height:1.8;color:#333;margin-bottom:20px}
+</style>
+</head>
+<body>
+<div class="controls">
+    <h1>🔤 Font Pairing</h1>
+    
+    <div>
+        <label>Heading Font</label>
+        <select id="headingFont" onchange="updateFonts()">
+            <option value="Inter">Inter (Sans)</option>
+            <option value="Playfair Display">Playfair Display (Serif)</option>
+            <option value="Montserrat">Montserrat (Sans)</option>
+            <option value="Merriweather">Merriweather (Serif)</option>
+            <option value="Oswald">Oswald (Sans)</option>
+            <option value="Roboto Slab">Roboto Slab (Serif)</option>
+            <option value="Poppins">Poppins (Sans)</option>
+        </select>
+    </div>
+    
+    <div>
+        <label>Body Font</label>
+        <select id="bodyFont" onchange="updateFonts()">
+            <option value="Inter">Inter (Sans)</option>
+            <option value="Lora">Lora (Serif)</option>
+            <option value="Open Sans">Open Sans (Sans)</option>
+            <option value="Source Sans Pro">Source Sans Pro (Sans)</option>
+            <option value="PT Serif">PT Serif (Serif)</option>
+            <option value="Lato">Lato (Sans)</option>
+            <option value="Nunito">Nunito (Sans)</option>
+        </select>
+    </div>
+
+    <button onclick="randomPair()">Random Pair</button>
+    
+    <div class="code-out" id="codeOut"></div>
+</div>
+
+<div class="preview">
+    <h1 class="hero-title" id="h1">Design beautiful interfaces.</h1>
+    <p class="hero-desc" id="d1">Typography is the foundation of great design. Choose the right fonts to convey your brand's message effectively.</p>
+    
+    <h2 class="article-title" id="h2">The importance of contrast</h2>
+    <p class="article-text" id="p1">Pairing a bold sans-serif header with a readable serif body text creates a timeless and elegant contrast. This ensures readability while maintaining a strong visual hierarchy.</p>
+    <p class="article-text" id="p2">Explore different combinations to find what best suits your project's mood. Modern, classic, playful, or serious — fonts speak louder than words.</p>
+</div>
+
+<script>
+const headSel = document.getElementById('headingFont');
+const bodySel = document.getElementById('bodyFont');
+const h1 = document.getElementById('h1');
+const h2 = document.getElementById('h2');
+const d1 = document.getElementById('d1');
+const p1 = document.getElementById('p1');
+const p2 = document.getElementById('p2');
+const codeOut = document.getElementById('codeOut');
+
+function loadFont(fontName) {
+    const linkId = 'font-' + fontName.replace(/\s+/g, '-');
+    if(!document.getElementById(linkId)) {
+        const link = document.createElement('link');
+        link.id = linkId;
+        link.rel = 'stylesheet';
+        link.href = `https://fonts.googleapis.com/css2?family=${fontName.replace(/\s+/g, '+')}:wght@400;700;900&display=swap`;
+        document.head.appendChild(link);
+    }
+}
+
+function updateFonts() {
+    const hFont = headSel.value;
+    const bFont = bodySel.value;
+    
+    loadFont(hFont);
+    loadFont(bFont);
+    
+    h1.style.fontFamily = `"${hFont}", sans-serif`;
+    h2.style.fontFamily = `"${hFont}", sans-serif`;
+    
+    d1.style.fontFamily = `"${bFont}", sans-serif`;
+    p1.style.fontFamily = `"${bFont}", sans-serif`;
+    p2.style.fontFamily = `"${bFont}", sans-serif`;
+    
+    codeOut.textContent = `/* CSS */
+h1, h2, h3 {
+  font-family: '${hFont}', sans-serif;
+}
+body, p {
+  font-family: '${bFont}', sans-serif;
+}`;
+}
+
+function randomPair() {
+    const optsH = headSel.options;
+    const optsB = bodySel.options;
+    headSel.selectedIndex = Math.floor(Math.random() * optsH.length);
+    bodySel.selectedIndex = Math.floor(Math.random() * optsB.length);
+    updateFonts();
+}
+
+updateFonts(); // init
+</script>
+</body>
+</html>

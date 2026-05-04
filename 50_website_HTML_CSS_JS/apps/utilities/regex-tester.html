@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Regex Tester</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0a0a0f;color:#f0f0f5;padding:20px}
+.container{max-width:800px;margin:0 auto;background:#16162a;padding:30px;border-radius:24px;border:1px solid rgba(255,255,255,0.05);box-shadow:0 15px 35px rgba(0,0,0,0.5)}
+h1{margin-bottom:20px;background:linear-gradient(135deg,#00b894,#55efc4);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.input-group{margin-bottom:20px}
+label{display:block;margin-bottom:8px;color:#a0a0b8;font-weight:bold}
+.regex-box{display:flex;background:#1a1a2e;border:1px solid rgba(255,255,255,0.1);border-radius:12px;overflow:hidden;transition:border-color 0.2s}
+.regex-box:focus-within{border-color:#00b894}
+.slash{padding:15px;background:#12121a;color:#a0a0b8;font-size:18px;font-family:monospace}
+.regex-box input[type="text"]{flex:1;background:transparent;border:none;color:#fff;font-size:18px;font-family:monospace;padding:15px;outline:none}
+.flags{width:60px;background:transparent;border:none;border-left:1px solid rgba(255,255,255,0.1);color:#a0a0b8;font-size:16px;font-family:monospace;padding:15px;outline:none;text-align:center}
+textarea{width:100%;height:150px;background:#1a1a2e;border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#fff;font-size:16px;font-family:monospace;padding:15px;outline:none;resize:none;transition:border-color 0.2s}
+textarea:focus{border-color:#00b894}
+.results{background:#12121a;border:1px solid rgba(255,255,255,0.05);border-radius:12px;padding:20px;min-height:150px;font-family:monospace;font-size:16px;line-height:1.5;white-space:pre-wrap;word-break:break-all}
+.match{background:rgba(0,184,148,0.3);border-radius:3px;color:#55efc4}
+.error-msg{color:#ff7675;font-size:14px;margin-top:5px;display:none}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>🔍 Regex Tester</h1>
+    
+    <div class="input-group">
+        <label>Regular Expression</label>
+        <div class="regex-box" id="regexBox">
+            <div class="slash">/</div>
+            <input type="text" id="regex" placeholder="[a-z]+" value="[a-z]+">
+            <div class="slash">/</div>
+            <input type="text" class="flags" id="flags" placeholder="gmi" value="g">
+        </div>
+        <div class="error-msg" id="errorMsg">Invalid regular expression</div>
+    </div>
+    
+    <div class="input-group">
+        <label>Test String</label>
+        <textarea id="testString" placeholder="Enter text to test your regex against...">Hello World 123! This is a regex testing tool.</textarea>
+    </div>
+    
+    <div class="input-group">
+        <label>Match Results</label>
+        <div class="results" id="results"></div>
+    </div>
+</div>
+
+<script>
+const regexEl = document.getElementById('regex');
+const flagsEl = document.getElementById('flags');
+const testStrEl = document.getElementById('testString');
+const resultsEl = document.getElementById('results');
+const errorMsg = document.getElementById('errorMsg');
+const regexBox = document.getElementById('regexBox');
+
+function testRegex() {
+    const pattern = regexEl.value;
+    const flags = flagsEl.value;
+    const text = testStrEl.value;
+    
+    if(!pattern) {
+        resultsEl.innerHTML = text; // Just show text if no regex
+        errorMsg.style.display = 'none';
+        regexBox.style.borderColor = '';
+        return;
+    }
+    
+    try {
+        const regex = new RegExp(pattern, flags);
+        errorMsg.style.display = 'none';
+        regexBox.style.borderColor = '';
+        
+        if(!flags.includes('g')) {
+            // Non-global regex only finds first match
+            const match = regex.exec(text);
+            if(match) {
+                const before = text.substring(0, match.index);
+                const matchedText = match[0];
+                const after = text.substring(match.index + matchedText.length);
+                resultsEl.innerHTML = escapeHTML(before) + `<span class="match">${escapeHTML(matchedText)}</span>` + escapeHTML(after);
+            } else {
+                resultsEl.innerHTML = escapeHTML(text);
+            }
+        } else {
+            // Global regex
+            let resultHtml = '';
+            let lastIndex = 0;
+            let match;
+            
+            // Prevent infinite loops on empty matches
+            if(regex.test('')) {
+                resultsEl.innerHTML = '<span style="color:#ff7675">Warning: Regex matches empty strings. Results not shown to prevent browser crash.</span>';
+                return;
+            }
+            
+            while ((match = regex.exec(text)) !== null) {
+                resultHtml += escapeHTML(text.substring(lastIndex, match.index));
+                resultHtml += `<span class="match">${escapeHTML(match[0])}</span>`;
+                lastIndex = regex.lastIndex;
+            }
+            resultHtml += escapeHTML(text.substring(lastIndex));
+            resultsEl.innerHTML = resultHtml;
+        }
+    } catch(e) {
+        errorMsg.style.display = 'block';
+        regexBox.style.borderColor = '#ff7675';
+        resultsEl.innerHTML = escapeHTML(text);
+    }
+}
+
+function escapeHTML(str) {
+    return str.replace(/[&<>'"]/g, 
+        tag => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            "'": '&#39;',
+            '"': '&quot;'
+        }[tag] || tag)
+    );
+}
+
+regexEl.addEventListener('input', testRegex);
+flagsEl.addEventListener('input', testRegex);
+testStrEl.addEventListener('input', testRegex);
+
+// Initial test
+testRegex();
+</script>
+</body>
+</html>

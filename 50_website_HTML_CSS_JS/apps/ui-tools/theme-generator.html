@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Theme Generator</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0a0a0f;color:#f0f0f5;padding:40px;display:flex;flex-direction:column;align-items:center;min-height:100vh}
+h1{margin-bottom:10px;background:linear-gradient(135deg,#fd79a8,#e84393);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+p{color:#a0a0b8;margin-bottom:30px}
+.controls{display:flex;gap:15px;margin-bottom:40px}
+button{padding:12px 24px;background:#16162a;border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:12px;font-size:16px;cursor:pointer;transition:all 0.2s;font-weight:bold}
+button:hover{background:#2a2a3e;transform:translateY(-2px)}
+button.primary{background:#fd79a8;border-color:#fd79a8;color:#1a1a2e}
+button.primary:hover{background:#e84393}
+.palette{display:flex;gap:20px;width:100%;max-width:800px;margin-bottom:40px;flex-wrap:wrap;justify-content:center}
+.color-card{flex:1;min-width:120px;background:#16162a;border-radius:16px;overflow:hidden;box-shadow:0 10px 20px rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.05);transition:transform 0.2s}
+.color-card:hover{transform:translateY(-5px)}
+.color-swatch{height:150px;width:100%}
+.color-info{padding:15px;text-align:center}
+.color-role{font-size:12px;color:#a0a0b8;text-transform:uppercase;font-weight:bold;margin-bottom:5px}
+.color-hex{font-family:monospace;font-size:16px;cursor:pointer}
+.color-hex:hover{color:#fd79a8}
+.preview-ui{width:100%;max-width:800px;border-radius:16px;padding:30px;box-shadow:0 15px 35px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.05)}
+.preview-nav{display:flex;justify-content:space-between;margin-bottom:30px;padding-bottom:15px;border-bottom:1px solid rgba(0,0,0,0.1)}
+.preview-btn{padding:10px 20px;border:none;border-radius:8px;font-weight:bold;cursor:pointer}
+</style>
+</head>
+<body>
+    <h1>🎨 Theme Generator</h1>
+    <p>Generate harmonious color palettes for your UI</p>
+    
+    <div class="controls">
+        <button onclick="generateRandomTheme()">Random Theme</button>
+        <button onclick="generateDarkTheme()">Dark Theme</button>
+        <button onclick="generateLightTheme()" class="primary">Light Theme</button>
+    </div>
+
+    <div class="palette" id="palette">
+        <!-- populated by js -->
+    </div>
+
+    <div class="preview-ui" id="previewUI">
+        <div class="preview-nav" id="previewNav">
+            <h2 id="previewLogo">Brand</h2>
+            <div style="display:flex;gap:10px">
+                <div class="preview-btn" id="previewBtnSec">Secondary</div>
+                <div class="preview-btn" id="previewBtnPri">Primary</div>
+            </div>
+        </div>
+        <div style="display:flex;gap:20px">
+            <div style="flex:2">
+                <h3 id="previewTitle" style="margin-bottom:15px">Beautiful UI Design</h3>
+                <p id="previewText" style="line-height:1.6">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in dui mauris. Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor.</p>
+            </div>
+            <div style="flex:1;border-radius:12px;min-height:100px" id="previewCard"></div>
+        </div>
+    </div>
+
+<script>
+const roles = ['Background', 'Surface', 'Primary', 'Secondary', 'Text'];
+
+function randomHex(lightness = null) {
+    let r,g,b;
+    if(lightness === 'dark') {
+        r = Math.floor(Math.random()*60);
+        g = Math.floor(Math.random()*60);
+        b = Math.floor(Math.random()*60);
+    } else if(lightness === 'light') {
+        r = Math.floor(Math.random()*55)+200;
+        g = Math.floor(Math.random()*55)+200;
+        b = Math.floor(Math.random()*55)+200;
+    } else {
+        r = Math.floor(Math.random()*256);
+        g = Math.floor(Math.random()*256);
+        b = Math.floor(Math.random()*256);
+    }
+    return '#' + [r,g,b].map(x => x.toString(16).padStart(2,'0')).join('');
+}
+
+function adjustColor(hex, amount) {
+    return '#' + hex.replace(/^#/, '').match(/.{2}/g).map(c => Math.max(0, Math.min(255, parseInt(c, 16) + amount)).toString(16).padStart(2, '0')).join('');
+}
+
+function applyTheme(colors) {
+    const palette = document.getElementById('palette');
+    palette.innerHTML = '';
+    
+    colors.forEach((col, i) => {
+        const card = document.createElement('div');
+        card.className = 'color-card';
+        card.innerHTML = `
+            <div class="color-swatch" style="background:${col}"></div>
+            <div class="color-info">
+                <div class="color-role">${roles[i]}</div>
+                <div class="color-hex" onclick="copyHex('${col}')">${col.toUpperCase()}</div>
+            </div>
+        `;
+        palette.appendChild(card);
+    });
+
+    // Apply to preview
+    const ui = document.getElementById('previewUI');
+    ui.style.backgroundColor = colors[0];
+    ui.style.color = colors[4];
+    
+    document.getElementById('previewNav').style.borderColor = colors[1];
+    document.getElementById('previewLogo').style.color = colors[2];
+    document.getElementById('previewText').style.color = colors[4];
+    document.getElementById('previewText').style.opacity = '0.8';
+    
+    const btnPri = document.getElementById('previewBtnPri');
+    btnPri.style.backgroundColor = colors[2];
+    btnPri.style.color = ['dark','random'].includes(currentMode) ? '#fff' : '#000';
+    
+    const btnSec = document.getElementById('previewBtnSec');
+    btnSec.style.backgroundColor = colors[1];
+    btnSec.style.color = colors[4];
+    
+    document.getElementById('previewCard').style.backgroundColor = colors[1];
+}
+
+let currentMode = 'dark';
+
+function generateDarkTheme() {
+    currentMode = 'dark';
+    const bg = randomHex('dark');
+    const surface = adjustColor(bg, 15);
+    const primary = randomHex();
+    const secondary = adjustColor(primary, -50);
+    const text = '#ffffff';
+    applyTheme([bg, surface, primary, secondary, text]);
+}
+
+function generateLightTheme() {
+    currentMode = 'light';
+    const bg = randomHex('light');
+    const surface = adjustColor(bg, -10);
+    const primary = randomHex();
+    const secondary = adjustColor(primary, 50);
+    const text = '#111111';
+    applyTheme([bg, surface, primary, secondary, text]);
+}
+
+function generateRandomTheme() {
+    currentMode = 'random';
+    const colors = [randomHex(), randomHex(), randomHex(), randomHex(), randomHex()];
+    applyTheme(colors);
+}
+
+function copyHex(hex) {
+    navigator.clipboard.writeText(hex);
+    alert(`Copied ${hex} to clipboard!`);
+}
+
+generateDarkTheme();
+</script>
+</body>
+</html>

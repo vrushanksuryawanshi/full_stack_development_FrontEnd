@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Typing Tutor</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0a0a0f;color:#f0f0f5;display:flex;align-items:center;justify-content:center;min-height:100vh}
+.container{background:#16162a;padding:40px;border-radius:24px;width:100%;max-width:800px;box-shadow:0 15px 35px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.05);text-align:center}
+h1{margin-bottom:20px;color:#a29bfe;font-size:24px}
+.stats{display:flex;justify-content:center;gap:30px;margin-bottom:30px}
+.stat-box{background:#1a1a2e;padding:15px 25px;border-radius:12px;border:1px solid rgba(255,255,255,0.05)}
+.stat-val{font-size:24px;font-weight:bold;color:#55efc4;margin-bottom:5px}
+.stat-label{font-size:12px;color:#a0a0b8;text-transform:uppercase}
+.text-display{background:#12121a;padding:30px;border-radius:16px;font-size:24px;line-height:1.5;margin-bottom:30px;text-align:left;position:relative;user-select:none;border:1px solid rgba(255,255,255,0.05)}
+.char{color:#a0a0b8;transition:color 0.1s}
+.char.correct{color:#55efc4}
+.char.incorrect{color:#ff7675;background:rgba(255,118,117,0.2)}
+.char.active{border-bottom:3px solid #a29bfe;animation:blink 1s infinite}
+@keyframes blink{50%{border-color:transparent}}
+input{position:absolute;opacity:0;top:0;left:0}
+.restart-btn{padding:12px 30px;background:#6c5ce7;color:#fff;border:none;border-radius:12px;font-weight:bold;font-size:16px;cursor:pointer;transition:background 0.2s}
+.restart-btn:hover{background:#5a4bcf}
+</style>
+</head>
+<body>
+<div class="container" onclick="document.getElementById('typeInput').focus()">
+    <h1>⌨️ Typing Tutor</h1>
+    
+    <div class="stats">
+        <div class="stat-box">
+            <div class="stat-val" id="wpm">0</div>
+            <div class="stat-label">WPM</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-val" id="acc">100%</div>
+            <div class="stat-label">Accuracy</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-val" id="time">60s</div>
+            <div class="stat-label">Time</div>
+        </div>
+    </div>
+    
+    <div class="text-display" id="display"></div>
+    <input type="text" id="typeInput" autocomplete="off">
+    
+    <button class="restart-btn" onclick="init()">Restart Test</button>
+</div>
+
+<script>
+const words = "the quick brown fox jumps over the lazy dog programming is an art form that requires patience and practice web development consists of html css and javascript frameworks like react and vue make building uis easier always remember to write clean and maintainable code".split(" ");
+
+let targetText = "";
+let chars = [];
+let currIdx = 0;
+let errors = 0;
+let timeLimit = 60;
+let timeLeft = timeLimit;
+let timer = null;
+let isPlaying = false;
+
+const displayEl = document.getElementById('display');
+const inputEl = document.getElementById('typeInput');
+const wpmEl = document.getElementById('wpm');
+const accEl = document.getElementById('acc');
+const timeEl = document.getElementById('time');
+
+function generateText() {
+    let arr = [];
+    for(let i=0; i<30; i++) {
+        arr.push(words[Math.floor(Math.random() * words.length)]);
+    }
+    targetText = arr.join(" ");
+    
+    displayEl.innerHTML = '';
+    targetText.split('').forEach(c => {
+        const span = document.createElement('span');
+        span.className = 'char';
+        span.textContent = c;
+        displayEl.appendChild(span);
+    });
+    chars = document.querySelectorAll('.char');
+    chars[0].classList.add('active');
+}
+
+function init() {
+    clearInterval(timer);
+    currIdx = 0;
+    errors = 0;
+    timeLeft = timeLimit;
+    isPlaying = false;
+    
+    timeEl.textContent = timeLeft + 's';
+    wpmEl.textContent = '0';
+    accEl.textContent = '100%';
+    inputEl.value = '';
+    inputEl.disabled = false;
+    
+    generateText();
+    inputEl.focus();
+}
+
+function updateStats() {
+    const typed = currIdx;
+    if(typed === 0) return;
+    
+    // WPM calculation: (typed chars / 5) / time elapsed in minutes
+    const timeElapsed = (timeLimit - timeLeft) / 60;
+    const wpm = timeElapsed > 0 ? Math.round((typed / 5) / timeElapsed) : 0;
+    wpmEl.textContent = wpm;
+    
+    const acc = Math.round(((typed - errors) / typed) * 100);
+    accEl.textContent = acc + '%';
+}
+
+function startTimer() {
+    timer = setInterval(() => {
+        timeLeft--;
+        timeEl.textContent = timeLeft + 's';
+        updateStats();
+        
+        if(timeLeft <= 0) {
+            clearInterval(timer);
+            inputEl.disabled = true;
+        }
+    }, 1000);
+}
+
+inputEl.addEventListener('input', () => {
+    if(!isPlaying) {
+        isPlaying = true;
+        startTimer();
+    }
+    
+    const typed = inputEl.value;
+    inputEl.value = ''; // clear input
+    
+    if(currIdx >= chars.length || timeLeft <= 0) return;
+    
+    const char = typed[typed.length - 1]; // get latest char
+    
+    // Handle Backspace via input event (hacky but works for this basic tutor)
+    // Actually, handling backspace requires keydown listener.
+});
+
+inputEl.addEventListener('keydown', (e) => {
+    if(timeLeft <= 0) return;
+    if(!isPlaying && e.key.length === 1) {
+        isPlaying = true;
+        startTimer();
+    }
+
+    if(e.key === 'Backspace') {
+        if(currIdx > 0) {
+            chars[currIdx].classList.remove('active');
+            currIdx--;
+            if(chars[currIdx].classList.contains('incorrect')) errors--;
+            chars[currIdx].className = 'char active';
+        }
+    } else if(e.key.length === 1) { // Normal character
+        if(currIdx >= chars.length) return;
+        
+        if(e.key === chars[currIdx].textContent) {
+            chars[currIdx].className = 'char correct';
+        } else {
+            chars[currIdx].className = 'char incorrect';
+            errors++;
+        }
+        
+        currIdx++;
+        if(currIdx < chars.length) {
+            chars[currIdx].classList.add('active');
+        } else {
+            // Finished
+            clearInterval(timer);
+            updateStats();
+            inputEl.disabled = true;
+        }
+    }
+});
+
+init();
+</script>
+</body>
+</html>

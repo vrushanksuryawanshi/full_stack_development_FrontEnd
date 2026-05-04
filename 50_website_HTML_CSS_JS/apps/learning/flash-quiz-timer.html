@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flash Quiz Timer</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0a0a0f;color:#f0f0f5;display:flex;align-items:center;justify-content:center;min-height:100vh}
+.container{background:#16162a;padding:40px;border-radius:24px;width:100%;max-width:500px;text-align:center;box-shadow:0 15px 35px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.05)}
+.timer-ring{width:150px;height:150px;border-radius:50%;margin:0 auto 30px;background:conic-gradient(#ff7675 0deg, #1a1a2e 0deg);display:flex;align-items:center;justify-content:center;position:relative}
+.timer-ring::before{content:'';width:130px;height:130px;background:#16162a;border-radius:50%;position:absolute}
+.time-text{position:relative;font-size:40px;font-weight:900;z-index:1;color:#ff7675}
+.question{font-size:24px;margin-bottom:20px;min-height:60px}
+.answer-box{display:flex;gap:10px;justify-content:center;margin-bottom:20px}
+input{padding:15px;background:#1a1a2e;border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:12px;font-size:18px;text-align:center;width:150px;outline:none}
+input:focus{border-color:#ff7675}
+button{padding:15px 30px;background:#ff7675;color:#1a1a2e;border:none;border-radius:12px;font-size:18px;font-weight:bold;cursor:pointer}
+button:hover{background:#e86464}
+.streak{font-size:14px;color:#a0a0b8;margin-top:20px;text-transform:uppercase;letter-spacing:1px}
+.flash{animation:flashRed 0.3s}
+@keyframes flashRed{0%{background:#16162a}50%{background:rgba(255,118,117,0.3)}100%{background:#16162a}}
+</style>
+</head>
+<body>
+<div class="container" id="box">
+    <div class="timer-ring" id="ring">
+        <div class="time-text" id="time">5</div>
+    </div>
+    
+    <div class="question" id="qText">12 + 8 = ?</div>
+    
+    <div class="answer-box">
+        <input type="number" id="ans" placeholder="?" autocomplete="off">
+        <button onclick="check()">Submit</button>
+    </div>
+    
+    <div class="streak">Current Streak: <span id="streak" style="color:#00b894;font-weight:bold">0</span></div>
+</div>
+
+<script>
+let timeLimit = 5;
+let timeLeft = timeLimit;
+let timer = null;
+let currentAns = 0;
+let streak = 0;
+
+const ring = document.getElementById('ring');
+const timeEl = document.getElementById('time');
+const qText = document.getElementById('qText');
+const input = document.getElementById('ans');
+const streakEl = document.getElementById('streak');
+const box = document.getElementById('box');
+
+function generateQ() {
+    const ops = ['+', '-', '*'];
+    const op = ops[Math.floor(Math.random() * ops.length)];
+    let n1, n2;
+    
+    if(op === '+') { n1 = r(1,50); n2 = r(1,50); currentAns = n1 + n2; }
+    else if(op === '-') { n1 = r(10,50); n2 = r(1,n1); currentAns = n1 - n2; }
+    else { n1 = r(2,12); n2 = r(2,12); currentAns = n1 * n2; }
+    
+    qText.textContent = `${n1} ${op} ${n2} = ?`;
+    
+    // adjust time limit based on streak
+    timeLimit = Math.max(2, 5 - Math.floor(streak/5)); 
+    timeLeft = timeLimit;
+    
+    updateRing();
+    input.value = '';
+    input.focus();
+    
+    clearInterval(timer);
+    timer = setInterval(() => {
+        timeLeft -= 0.1;
+        updateRing();
+        if(timeLeft <= 0) {
+            gameOver();
+        }
+    }, 100);
+}
+
+function updateRing() {
+    const deg = (timeLeft / timeLimit) * 360;
+    ring.style.background = `conic-gradient(#ff7675 ${deg}deg, #1a1a2e 0deg)`;
+    timeEl.textContent = Math.ceil(timeLeft);
+}
+
+function r(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+function check() {
+    if(parseInt(input.value) === currentAns) {
+        streak++;
+        streakEl.textContent = streak;
+        generateQ();
+    } else {
+        gameOver();
+    }
+}
+
+function gameOver() {
+    clearInterval(timer);
+    box.classList.add('flash');
+    setTimeout(() => box.classList.remove('flash'), 300);
+    alert(`Game Over! Your streak was ${streak}`);
+    streak = 0;
+    streakEl.textContent = streak;
+    generateQ();
+}
+
+input.addEventListener('keypress', e => { if(e.key === 'Enter') check(); });
+
+generateQ();
+</script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Button Generator</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0a0a0f;color:#f0f0f5;display:flex;padding:20px;gap:20px;min-height:100vh}
+@media(max-width:768px){body{flex-direction:column}}
+.controls{width:350px;background:#16162a;padding:20px;border-radius:16px;border:1px solid rgba(255,255,255,0.05);overflow-y:auto}
+h1{font-size:20px;margin-bottom:20px;background:linear-gradient(135deg,#fdcb6e,#e17055);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.control-group{margin-bottom:15px}
+.control-header{display:flex;justify-content:space-between;color:#a0a0b8;font-size:12px;font-weight:bold;margin-bottom:8px;text-transform:uppercase}
+input[type="range"]{width:100%;accent-color:#e17055;height:6px;background:#1a1a2e;border-radius:3px;outline:none;appearance:none}
+input[type="range"]::-webkit-slider-thumb{appearance:none;width:16px;height:16px;background:#e17055;border-radius:50%;cursor:pointer}
+.color-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.color-row label{color:#a0a0b8;font-size:14px;font-weight:bold}
+input[type="color"]{border:none;background:none;width:30px;height:30px;cursor:pointer}
+input[type="color"]::-webkit-color-swatch-wrapper{padding:0}
+input[type="color"]::-webkit-color-swatch{border:none;border-radius:6px}
+input[type="text"]{width:100%;background:#1a1a2e;border:1px solid rgba(255,255,255,0.1);color:#fff;padding:10px;border-radius:8px;outline:none}
+.preview-wrapper{flex:1;background:#12121a;border-radius:16px;padding:20px;display:flex;flex-direction:column}
+.preview{flex:1;display:flex;align-items:center;justify-content:center;background:repeating-conic-gradient(#1a1a2e 0% 25%, #12121a 0% 50%) 50% / 40px 40px;border-radius:12px;border:1px solid rgba(255,255,255,0.05);min-height:300px}
+.code-panel{background:#0a0a0f;padding:15px;border-radius:12px;margin-top:20px;font-family:monospace;font-size:13px;color:#55efc4;border:1px solid rgba(255,255,255,0.05);white-space:pre-wrap;position:relative}
+.copy-btn{position:absolute;top:10px;right:10px;background:#e17055;color:#fff;border:none;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:bold}
+</style>
+</head>
+<body>
+<div class="controls">
+    <h1>🔘 Button Generator</h1>
+    
+    <div class="control-group">
+        <label style="color:#a0a0b8;font-size:12px;font-weight:bold;margin-bottom:8px;display:block">Button Text</label>
+        <input type="text" id="btnText" value="Click Me!" oninput="updateBtn()">
+    </div>
+    
+    <div class="color-row">
+        <label>Background Color</label>
+        <input type="color" id="bgColor" value="#e17055" oninput="updateBtn()">
+    </div>
+    <div class="color-row">
+        <label>Text Color</label>
+        <input type="color" id="textColor" value="#ffffff" oninput="updateBtn()">
+    </div>
+    
+    <hr style="border:0;border-top:1px solid rgba(255,255,255,0.1);margin:20px 0">
+    
+    <div class="control-group">
+        <div class="control-header"><span>Font Size</span> <span id="fsVal">16px</span></div>
+        <input type="range" id="fs" min="10" max="40" value="16" oninput="updateBtn()">
+    </div>
+    <div class="control-group">
+        <div class="control-header"><span>Padding Y</span> <span id="pyVal">12px</span></div>
+        <input type="range" id="py" min="0" max="50" value="12" oninput="updateBtn()">
+    </div>
+    <div class="control-group">
+        <div class="control-header"><span>Padding X</span> <span id="pxVal">24px</span></div>
+        <input type="range" id="px" min="0" max="100" value="24" oninput="updateBtn()">
+    </div>
+    <div class="control-group">
+        <div class="control-header"><span>Border Radius</span> <span id="brVal">8px</span></div>
+        <input type="range" id="br" min="0" max="50" value="8" oninput="updateBtn()">
+    </div>
+    <div class="control-group">
+        <div class="control-header"><span>Border Width</span> <span id="bwVal">0px</span></div>
+        <input type="range" id="bw" min="0" max="10" value="0" oninput="updateBtn()">
+    </div>
+    <div class="color-row">
+        <label>Border Color</label>
+        <input type="color" id="borderColor" value="#000000" oninput="updateBtn()">
+    </div>
+</div>
+
+<div class="preview-wrapper">
+    <div class="preview">
+        <button id="demoBtn">Click Me!</button>
+    </div>
+    <div class="code-panel">
+        <button class="copy-btn" id="copyBtn" onclick="copyCode()">Copy</button>
+        <div id="codeOut"></div>
+    </div>
+</div>
+
+<script>
+const demoBtn = document.getElementById('demoBtn');
+const codeOut = document.getElementById('codeOut');
+
+function updateBtn() {
+    const text = document.getElementById('btnText').value;
+    const bg = document.getElementById('bgColor').value;
+    const color = document.getElementById('textColor').value;
+    const fs = document.getElementById('fs').value;
+    const py = document.getElementById('py').value;
+    const px = document.getElementById('px').value;
+    const br = document.getElementById('br').value;
+    const bw = document.getElementById('bw').value;
+    const bc = document.getElementById('borderColor').value;
+
+    document.getElementById('fsVal').textContent = fs + 'px';
+    document.getElementById('pyVal').textContent = py + 'px';
+    document.getElementById('pxVal').textContent = px + 'px';
+    document.getElementById('brVal').textContent = br + 'px';
+    document.getElementById('bwVal').textContent = bw + 'px';
+
+    demoBtn.textContent = text;
+    demoBtn.style.backgroundColor = bg;
+    demoBtn.style.color = color;
+    demoBtn.style.fontSize = fs + 'px';
+    demoBtn.style.padding = `${py}px ${px}px`;
+    demoBtn.style.borderRadius = br + 'px';
+    demoBtn.style.border = bw > 0 ? `${bw}px solid ${bc}` : 'none';
+    demoBtn.style.cursor = 'pointer';
+    demoBtn.style.fontWeight = 'bold';
+    demoBtn.style.transition = 'transform 0.1s';
+    
+    demoBtn.onmousedown = () => demoBtn.style.transform = 'scale(0.95)';
+    demoBtn.onmouseup = () => demoBtn.style.transform = 'scale(1)';
+    demoBtn.onmouseleave = () => demoBtn.style.transform = 'scale(1)';
+
+    codeOut.textContent = `.custom-button {
+  background-color: ${bg};
+  color: ${color};
+  font-size: ${fs}px;
+  font-weight: bold;
+  padding: ${py}px ${px}px;
+  border-radius: ${br}px;
+  border: ${bw > 0 ? `${bw}px solid ${bc}` : 'none'};
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+.custom-button:active {
+  transform: scale(0.95);
+}`;
+}
+
+function copyCode() {
+    navigator.clipboard.writeText(codeOut.textContent);
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+}
+
+updateBtn();
+</script>
+</body>
+</html>

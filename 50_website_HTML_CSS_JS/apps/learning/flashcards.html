@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flashcards App</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0a0a0f;color:#f0f0f5;display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;padding:20px}
+.container{width:100%;max-width:500px;text-align:center}
+h1{margin-bottom:30px;background:linear-gradient(135deg,#fdcb6e,#e17055);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.flashcard{background:transparent;width:100%;height:300px;perspective:1000px;margin-bottom:30px}
+.flashcard-inner{position:relative;width:100%;height:100%;text-align:center;transition:transform 0.6s;transform-style:preserve-3d;cursor:pointer}
+.flashcard.flip .flashcard-inner{transform:rotateY(180deg)}
+.front,.back{position:absolute;width:100%;height:100%;backface-visibility:hidden;display:flex;align-items:center;justify-content:center;padding:30px;border-radius:24px;box-shadow:0 15px 35px rgba(0,0,0,0.5);font-size:24px;font-weight:bold;line-height:1.4}
+.front{background:#16162a;border:1px solid rgba(255,255,255,0.05);color:#fff}
+.back{background:linear-gradient(135deg,#fdcb6e,#e17055);color:#1a1a2e;transform:rotateY(180deg)}
+.controls{display:flex;justify-content:space-between;gap:15px;margin-bottom:40px}
+button{flex:1;padding:15px;background:#1a1a2e;color:#fff;border:1px solid rgba(255,255,255,0.1);border-radius:12px;font-size:16px;font-weight:bold;cursor:pointer;transition:background 0.2s}
+button:hover{background:#2a2a3e}
+.add-form{background:#16162a;padding:20px;border-radius:16px;border:1px solid rgba(255,255,255,0.05)}
+.add-form input{width:100%;padding:12px;background:#0a0a0f;border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:8px;margin-bottom:10px;outline:none}
+.add-btn{background:#00b894;color:#1a1a2e;border:none}
+.add-btn:hover{background:#00a383}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>🗂️ Flashcards</h1>
+    
+    <div class="flashcard" id="card" onclick="this.classList.toggle('flip')">
+        <div class="flashcard-inner">
+            <div class="front" id="front">Add a card to start!</div>
+            <div class="back" id="back">Ready?</div>
+        </div>
+    </div>
+    
+    <div class="controls">
+        <button onclick="prevCard()">⬅ Prev</button>
+        <button onclick="nextCard()">Next ➡</button>
+    </div>
+    
+    <div class="add-form">
+        <input type="text" id="qInp" placeholder="Question (Front)">
+        <input type="text" id="aInp" placeholder="Answer (Back)">
+        <button class="add-btn" onclick="addCard()">Add Flashcard</button>
+    </div>
+</div>
+
+<script>
+let cards = JSON.parse(localStorage.getItem('hub_flashcards')) || [
+    {q: "What is HTML?", a: "HyperText Markup Language"},
+    {q: "What is CSS?", a: "Cascading Style Sheets"}
+];
+let currentIdx = 0;
+
+const cardEl = document.getElementById('card');
+const frontEl = document.getElementById('front');
+const backEl = document.getElementById('back');
+
+function loadCard() {
+    cardEl.classList.remove('flip');
+    if(cards.length === 0) {
+        frontEl.textContent = "No cards added.";
+        backEl.textContent = "Add one below!";
+        return;
+    }
+    frontEl.textContent = cards[currentIdx].q;
+    backEl.textContent = cards[currentIdx].a;
+}
+
+function nextCard() {
+    if(cards.length === 0) return;
+    currentIdx = (currentIdx + 1) % cards.length;
+    loadCard();
+}
+
+function prevCard() {
+    if(cards.length === 0) return;
+    currentIdx = (currentIdx - 1 + cards.length) % cards.length;
+    loadCard();
+}
+
+function addCard() {
+    const q = document.getElementById('qInp').value.trim();
+    const a = document.getElementById('aInp').value.trim();
+    if(q && a) {
+        cards.push({q, a});
+        localStorage.setItem('hub_flashcards', JSON.stringify(cards));
+        document.getElementById('qInp').value = '';
+        document.getElementById('aInp').value = '';
+        currentIdx = cards.length - 1;
+        loadCard();
+    }
+}
+
+loadCard();
+</script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Binary Converter</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0a0a0f;color:#f0f0f5;display:flex;align-items:center;justify-content:center;min-height:100vh}
+.container{background:#16162a;padding:40px;border-radius:24px;width:100%;max-width:500px;box-shadow:0 15px 35px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.05);text-align:center}
+h1{margin-bottom:30px;color:#00b894;font-family:monospace;font-size:28px}
+.box{background:#1a1a2e;padding:20px;border-radius:16px;margin-bottom:20px;border:1px solid rgba(255,255,255,0.1)}
+label{display:block;color:#a0a0b8;font-size:12px;font-weight:bold;text-transform:uppercase;margin-bottom:10px;text-align:left}
+textarea{width:100%;background:transparent;border:none;color:#fff;font-family:monospace;font-size:16px;resize:none;outline:none;min-height:80px}
+.swap{background:#2a2a3e;color:#fff;border:none;width:40px;height:40px;border-radius:50%;font-size:20px;cursor:pointer;margin:-10px auto 10px;position:relative;z-index:10;display:flex;align-items:center;justify-content:center;transition:transform 0.2s}
+.swap:hover{transform:rotate(180deg);background:#00b894}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>01000010</h1>
+    
+    <div class="box">
+        <label id="l1">Text</label>
+        <textarea id="t1" placeholder="Type text here..." oninput="convert('t1')"></textarea>
+    </div>
+    
+    <button class="swap" onclick="swap()">⇅</button>
+    
+    <div class="box" style="border-color:#00b894">
+        <label id="l2">Binary</label>
+        <textarea id="t2" placeholder="01100010..." oninput="convert('t2')"></textarea>
+    </div>
+</div>
+
+<script>
+let mode = 'text2bin'; // text2bin or bin2text
+
+const t1 = document.getElementById('t1');
+const t2 = document.getElementById('t2');
+const l1 = document.getElementById('l1');
+const l2 = document.getElementById('l2');
+
+function swap() {
+    if(mode === 'text2bin') {
+        mode = 'bin2text';
+        l1.textContent = 'Binary';
+        l2.textContent = 'Text';
+        t1.placeholder = '01100010...';
+        t2.placeholder = 'Type text here...';
+    } else {
+        mode = 'text2bin';
+        l1.textContent = 'Text';
+        l2.textContent = 'Binary';
+        t1.placeholder = 'Type text here...';
+        t2.placeholder = '01100010...';
+    }
+    
+    const temp = t1.value;
+    t1.value = t2.value;
+    t2.value = temp;
+}
+
+function convert(source) {
+    if(mode === 'text2bin') {
+        if(source === 't1') {
+            t2.value = textToBin(t1.value);
+        } else {
+            t1.value = binToText(t2.value);
+        }
+    } else {
+        if(source === 't1') {
+            t2.value = binToText(t1.value);
+        } else {
+            t1.value = textToBin(t2.value);
+        }
+    }
+}
+
+function textToBin(text) {
+    return text.split('').map(char => char.charCodeAt(0).toString(2).padStart(8, '0')).join(' ');
+}
+
+function binToText(bin) {
+    try {
+        const bins = bin.trim().split(/\s+/);
+        return bins.map(b => String.fromCharCode(parseInt(b, 2))).join('');
+    } catch {
+        return 'Invalid binary';
+    }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notes App</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0a0a0f;color:#f0f0f5;height:100vh;display:flex}
+.sidebar{width:250px;background:#12121a;border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column}
+.header{padding:20px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;justify-content:space-between;align-items:center}
+.header h2{font-size:18px;background:linear-gradient(135deg,#6c5ce7,#a29bfe);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.add-btn{background:none;border:none;color:#6c5ce7;font-size:24px;cursor:pointer;transition:transform 0.2s}
+.add-btn:hover{transform:scale(1.2)}
+.notes-list{flex:1;overflow-y:auto;padding:10px}
+.note-item{padding:12px;border-radius:8px;cursor:pointer;margin-bottom:8px;transition:background 0.2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.note-item:hover{background:#1a1a2e}
+.note-item.active{background:#6c5ce7;color:#fff}
+.note-title{font-weight:600;font-size:14px;margin-bottom:4px}
+.note-preview{font-size:12px;color:#a0a0b8;overflow:hidden;text-overflow:ellipsis}
+.note-item.active .note-preview{color:rgba(255,255,255,0.7)}
+.editor-container{flex:1;display:flex;flex-direction:column;background:#0a0a0f}
+.toolbar{padding:10px 20px;background:#12121a;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;justify-content:flex-end}
+.delete-btn{background:none;border:1px solid rgba(255,100,100,0.3);color:#ff6b6b;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px}
+.delete-btn:hover{background:rgba(255,100,100,0.1)}
+.title-input{background:none;border:none;color:#fff;font-size:24px;font-weight:bold;padding:20px;outline:none;font-family:inherit}
+.content-input{flex:1;background:none;border:none;color:#a0a0b8;font-size:16px;padding:0 20px 20px;resize:none;outline:none;font-family:inherit;line-height:1.6}
+.empty-state{flex:1;display:flex;align-items:center;justify-content:center;color:#6a6a80;font-size:18px;flex-direction:column;gap:10px}
+</style>
+</head>
+<body>
+<div class="sidebar">
+    <div class="header">
+        <h2>📝 Notes</h2>
+        <button class="add-btn" onclick="createNote()">+</button>
+    </div>
+    <div class="notes-list" id="notesList"></div>
+</div>
+<div class="editor-container" id="editor" style="display:none;">
+    <div class="toolbar">
+        <button class="delete-btn" onclick="deleteCurrentNote()">Delete</button>
+    </div>
+    <input type="text" class="title-input" id="noteTitle" placeholder="Note Title..." oninput="saveNote()">
+    <textarea class="content-input" id="noteContent" placeholder="Start typing..." oninput="saveNote()"></textarea>
+</div>
+<div class="empty-state" id="emptyState">
+    <div>Select a note or create a new one</div>
+</div>
+
+<script>
+let notes = JSON.parse(localStorage.getItem('hub_notes') || '[]');
+let currentNoteId = null;
+
+const notesList = document.getElementById('notesList');
+const editor = document.getElementById('editor');
+const emptyState = document.getElementById('emptyState');
+const titleInput = document.getElementById('noteTitle');
+const contentInput = document.getElementById('noteContent');
+
+function renderNotes() {
+    notesList.innerHTML = '';
+    notes.forEach(note => {
+        const div = document.createElement('div');
+        div.className = `note-item ${note.id === currentNoteId ? 'active' : ''}`;
+        div.onclick = () => selectNote(note.id);
+        div.innerHTML = `
+            <div class="note-title">${note.title || 'Untitled'}</div>
+            <div class="note-preview">${note.content.substring(0, 30) || '...'}</div>
+        `;
+        notesList.appendChild(div);
+    });
+}
+
+function createNote() {
+    const newNote = { id: Date.now(), title: '', content: '' };
+    notes.unshift(newNote);
+    saveToDb();
+    selectNote(newNote.id);
+}
+
+function selectNote(id) {
+    currentNoteId = id;
+    const note = notes.find(n => n.id === id);
+    if(note) {
+        titleInput.value = note.title;
+        contentInput.value = note.content;
+        editor.style.display = 'flex';
+        emptyState.style.display = 'none';
+        renderNotes();
+    }
+}
+
+function saveNote() {
+    if(!currentNoteId) return;
+    const note = notes.find(n => n.id === currentNoteId);
+    if(note) {
+        note.title = titleInput.value;
+        note.content = contentInput.value;
+        saveToDb();
+        renderNotes();
+    }
+}
+
+function deleteCurrentNote() {
+    if(!currentNoteId) return;
+    notes = notes.filter(n => n.id !== currentNoteId);
+    currentNoteId = null;
+    editor.style.display = 'none';
+    emptyState.style.display = 'flex';
+    saveToDb();
+    renderNotes();
+}
+
+function saveToDb() { localStorage.setItem('hub_notes', JSON.stringify(notes)); }
+
+renderNotes();
+</script>
+</body>
+</html>

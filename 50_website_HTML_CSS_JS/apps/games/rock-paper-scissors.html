@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rock Paper Scissors</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0a0a0f;color:#f0f0f5;display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column}
+.container{text-align:center;background:#16162a;padding:40px;border-radius:24px;border:1px solid rgba(255,255,255,0.05);max-width:500px;width:90%}
+h1{margin-bottom:20px;background:linear-gradient(135deg,#00b894,#0984e3);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.score{display:flex;justify-content:center;gap:40px;font-size:24px;font-weight:bold;margin-bottom:30px}
+.score div{display:flex;flex-direction:column;align-items:center}
+.score span{font-size:36px;color:#00b894}
+.display-area{display:flex;justify-content:center;align-items:center;gap:30px;margin-bottom:30px;font-size:60px}
+.vs{font-size:24px;color:#a0a0b8;font-weight:bold}
+.choices{display:flex;justify-content:center;gap:15px}
+.choice-btn{font-size:40px;padding:15px;background:#1a1a2e;border:2px solid rgba(255,255,255,0.1);border-radius:50%;cursor:pointer;transition:all 0.2s}
+.choice-btn:hover{transform:scale(1.1);background:#2a2a3e;border-color:#00b894}
+.result-text{font-size:24px;font-weight:bold;margin-top:20px;height:30px}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>Rock Paper Scissors</h1>
+    <div class="score">
+        <div>You <span id="playerScore">0</span></div>
+        <div>Comp <span id="compScore">0</span></div>
+    </div>
+    <div class="display-area">
+        <div id="playerDisplay">🤜</div>
+        <div class="vs">VS</div>
+        <div id="compDisplay">🤛</div>
+    </div>
+    <div class="choices">
+        <button class="choice-btn" onclick="playGame('rock')">✊</button>
+        <button class="choice-btn" onclick="playGame('paper')">✋</button>
+        <button class="choice-btn" onclick="playGame('scissors')">✌️</button>
+    </div>
+    <div class="result-text" id="resultText">Choose your weapon!</div>
+</div>
+<script>
+const choices = { rock: '✊', paper: '✋', scissors: '✌️' };
+let pScore = 0, cScore = 0;
+
+function playGame(playerChoice) {
+    const keys = Object.keys(choices);
+    const compChoice = keys[Math.floor(Math.random() * 3)];
+    
+    document.getElementById('playerDisplay').textContent = choices[playerChoice];
+    document.getElementById('compDisplay').textContent = choices[compChoice];
+    
+    const resultEl = document.getElementById('resultText');
+    
+    if(playerChoice === compChoice) {
+        resultEl.textContent = "It's a Draw!";
+        resultEl.style.color = '#f0f0f5';
+    } else if (
+        (playerChoice === 'rock' && compChoice === 'scissors') ||
+        (playerChoice === 'paper' && compChoice === 'rock') ||
+        (playerChoice === 'scissors' && compChoice === 'paper')
+    ) {
+        resultEl.textContent = "You Win! 🎉";
+        resultEl.style.color = '#00b894';
+        pScore++;
+        document.getElementById('playerScore').textContent = pScore;
+    } else {
+        resultEl.textContent = "You Lose! 😢";
+        resultEl.style.color = '#ff7675';
+        cScore++;
+        document.getElementById('compScore').textContent = cScore;
+    }
+}
+</script>
+</body>
+</html>

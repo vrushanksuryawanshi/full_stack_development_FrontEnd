@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JS Quiz</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0a0a0f;color:#f0f0f5;display:flex;align-items:center;justify-content:center;min-height:100vh}
+.container{background:#16162a;padding:40px;border-radius:24px;width:100%;max-width:600px;border:1px solid rgba(255,255,255,0.05);box-shadow:0 15px 35px rgba(0,0,0,0.5)}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:15px}
+h1{color:#fdcb6e;font-size:20px}
+.score-badge{background:#1a1a2e;padding:5px 15px;border-radius:20px;font-weight:bold;color:#a0a0b8}
+h2{font-size:22px;margin-bottom:20px;line-height:1.4}
+.code-block{background:#0a0a0f;padding:15px;border-radius:12px;font-family:monospace;color:#55efc4;margin-bottom:20px;border:1px solid rgba(255,255,255,0.05)}
+.options{display:grid;gap:10px}
+.btn{padding:15px;background:#1a1a2e;border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:12px;font-size:16px;cursor:pointer;text-align:left;transition:all 0.2s}
+.btn:hover{background:#2a2a3e}
+.btn.correct{background:#00b894;border-color:#00b894;color:#1a1a2e}
+.btn.wrong{background:#ff7675;border-color:#ff7675;color:#1a1a2e}
+.next-btn{margin-top:20px;width:100%;padding:15px;background:#fdcb6e;color:#1a1a2e;border:none;border-radius:12px;font-size:16px;font-weight:bold;cursor:pointer;display:none}
+</style>
+</head>
+<body>
+<div class="container" id="app">
+    <div class="header">
+        <h1>📘 JS Mastery Quiz</h1>
+        <div class="score-badge"><span id="qCount">1/5</span> | Score: <span id="score">0</span></div>
+    </div>
+    
+    <div id="quiz-area">
+        <h2 id="question">Loading...</h2>
+        <div class="code-block" id="codeBlock" style="display:none"></div>
+        <div class="options" id="options"></div>
+        <button class="next-btn" id="nextBtn" onclick="nextQ()">Next Question</button>
+    </div>
+    
+    <div id="result-area" style="display:none;text-align:center">
+        <h2 style="font-size:32px;margin-bottom:10px">Quiz Complete!</h2>
+        <p style="color:#a0a0b8;font-size:18px;margin-bottom:30px">You scored <span id="finalScore" style="color:#00b894;font-weight:bold">0</span> out of 5</p>
+        <button class="btn" style="text-align:center" onclick="location.reload()">Try Again</button>
+    </div>
+</div>
+
+<script>
+const quizData = [
+    {
+        q: "What is the output of the following code?",
+        code: "console.log(typeof NaN);",
+        opts: ["number", "NaN", "undefined", "string"],
+        ans: 0
+    },
+    {
+        q: "Which method is used to remove the last element from an array?",
+        code: null,
+        opts: ["shift()", "pop()", "push()", "unshift()"],
+        ans: 1
+    },
+    {
+        q: "What does `0 == false` evaluate to?",
+        code: null,
+        opts: ["true", "false", "undefined", "ReferenceError"],
+        ans: 0
+    },
+    {
+        q: "How do you declare a variable that cannot be reassigned?",
+        code: null,
+        opts: ["var", "let", "const", "static"],
+        ans: 2
+    },
+    {
+        q: "What will this code output?",
+        code: "let x = 1;\nif (true) {\n  let x = 2;\n}\nconsole.log(x);",
+        opts: ["1", "2", "undefined", "Error"],
+        ans: 0
+    }
+];
+
+let currIdx = 0;
+let score = 0;
+let answered = false;
+
+function loadQ() {
+    answered = false;
+    document.getElementById('nextBtn').style.display = 'none';
+    document.getElementById('qCount').textContent = `${currIdx+1}/${quizData.length}`;
+    
+    const q = quizData[currIdx];
+    document.getElementById('question').textContent = q.q;
+    
+    const cb = document.getElementById('codeBlock');
+    if(q.code) {
+        cb.style.display = 'block';
+        cb.innerHTML = q.code.replace(/\n/g, '<br>').replace(/ /g, '&nbsp;');
+    } else {
+        cb.style.display = 'none';
+    }
+    
+    const opts = document.getElementById('options');
+    opts.innerHTML = '';
+    q.opts.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'btn';
+        btn.textContent = opt;
+        btn.onclick = () => select(i, btn);
+        opts.appendChild(btn);
+    });
+}
+
+function select(idx, btn) {
+    if(answered) return;
+    answered = true;
+    
+    const q = quizData[currIdx];
+    if(idx === q.ans) {
+        btn.classList.add('correct');
+        score++;
+        document.getElementById('score').textContent = score;
+    } else {
+        btn.classList.add('wrong');
+        document.getElementById('options').children[q.ans].classList.add('correct');
+    }
+    
+    document.getElementById('nextBtn').style.display = 'block';
+    if(currIdx === quizData.length - 1) {
+        document.getElementById('nextBtn').textContent = 'Show Results';
+    }
+}
+
+function nextQ() {
+    currIdx++;
+    if(currIdx < quizData.length) {
+        loadQ();
+    } else {
+        document.getElementById('quiz-area').style.display = 'none';
+        document.getElementById('result-area').style.display = 'block';
+        document.getElementById('finalScore').textContent = score;
+        document.getElementById('qCount').parentElement.style.display = 'none';
+    }
+}
+
+loadQ();
+</script>
+</body>
+</html>

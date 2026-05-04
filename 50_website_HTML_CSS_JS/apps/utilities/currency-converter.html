@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Currency Converter</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0a0a0f;color:#f0f0f5;display:flex;align-items:center;justify-content:center;min-height:100vh}
+.container{background:#16162a;padding:40px;border-radius:24px;width:100%;max-width:450px;box-shadow:0 15px 35px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.05)}
+h1{margin-bottom:10px;text-align:center;background:linear-gradient(135deg,#00b894,#55efc4);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+p{text-align:center;color:#a0a0b8;font-size:14px;margin-bottom:30px}
+.currency-group{display:flex;align-items:center;background:#1a1a2e;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:10px 15px;margin-bottom:15px;transition:border-color 0.2s}
+.currency-group:focus-within{border-color:#00b894}
+select{background:transparent;border:none;color:#fff;font-size:16px;outline:none;cursor:pointer;padding-right:10px;border-right:1px solid rgba(255,255,255,0.1)}
+select option{background:#16162a}
+input{flex:1;background:transparent;border:none;color:#fff;font-size:24px;text-align:right;outline:none;font-family:inherit;width:100%}
+.swap-btn{display:block;margin:0 auto 15px;background:#2a2a3e;color:#fff;border:none;width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;transition:transform 0.2s}
+.swap-btn:hover{transform:rotate(180deg);background:#00b894}
+.rate-info{text-align:center;color:#a0a0b8;font-size:13px;margin-top:20px}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>💱 Currency Converter</h1>
+    <p>Live exchange rates</p>
+    
+    <div class="currency-group">
+        <select id="currency-one">
+            <option value="USD" selected>USD</option>
+            <option value="EUR">EUR</option>
+            <option value="GBP">GBP</option>
+            <option value="INR">INR</option>
+            <option value="JPY">JPY</option>
+            <option value="AUD">AUD</option>
+            <option value="CAD">CAD</option>
+            <option value="CHF">CHF</option>
+            <option value="CNY">CNY</option>
+            <option value="NZD">NZD</option>
+        </select>
+        <input type="number" id="amount-one" placeholder="0" value="1">
+    </div>
+    
+    <button class="swap-btn" id="swap">⇅</button>
+    
+    <div class="currency-group">
+        <select id="currency-two">
+            <option value="USD">USD</option>
+            <option value="EUR" selected>EUR</option>
+            <option value="GBP">GBP</option>
+            <option value="INR">INR</option>
+            <option value="JPY">JPY</option>
+            <option value="AUD">AUD</option>
+            <option value="CAD">CAD</option>
+            <option value="CHF">CHF</option>
+            <option value="CNY">CNY</option>
+            <option value="NZD">NZD</option>
+        </select>
+        <input type="number" id="amount-two" placeholder="0" disabled style="color:#a0a0b8">
+    </div>
+
+    <div class="rate-info" id="rate">Loading rate...</div>
+</div>
+
+<script>
+const currOneEl = document.getElementById('currency-one');
+const currTwoEl = document.getElementById('currency-two');
+const amountOneEl = document.getElementById('amount-one');
+const amountTwoEl = document.getElementById('amount-two');
+const rateEl = document.getElementById('rate');
+const swapEl = document.getElementById('swap');
+
+async function calculate() {
+    const currOne = currOneEl.value;
+    const currTwo = currTwoEl.value;
+    
+    try {
+        // Using a free open API for demo purposes
+        const res = await fetch(`https://api.exchangerate-api.com/v4/latest/${currOne}`);
+        const data = await res.json();
+        const rate = data.rates[currTwo];
+        
+        rateEl.innerText = `1 ${currOne} = ${rate} ${currTwo}`;
+        amountTwoEl.value = (amountOneEl.value * rate).toFixed(2);
+    } catch(err) {
+        rateEl.innerText = "Error fetching rates. Try again.";
+    }
+}
+
+currOneEl.addEventListener('change', calculate);
+amountOneEl.addEventListener('input', calculate);
+currTwoEl.addEventListener('change', calculate);
+amountTwoEl.addEventListener('input', calculate);
+
+swapEl.addEventListener('click', () => {
+    const temp = currOneEl.value;
+    currOneEl.value = currTwoEl.value;
+    currTwoEl.value = temp;
+    calculate();
+});
+
+calculate();
+</script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Navbar Builder</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0a0a0f;color:#f0f0f5;display:flex;padding:20px;gap:20px;min-height:100vh}
+@media(max-width:768px){body{flex-direction:column}}
+.controls{width:350px;background:#16162a;padding:20px;border-radius:16px;border:1px solid rgba(255,255,255,0.05);overflow-y:auto}
+h1{font-size:20px;margin-bottom:20px;color:#a29bfe}
+.control-group{margin-bottom:15px}
+.control-header{display:flex;justify-content:space-between;color:#a0a0b8;font-size:12px;font-weight:bold;margin-bottom:8px;text-transform:uppercase}
+input[type="range"]{width:100%;accent-color:#a29bfe;height:6px;background:#1a1a2e;border-radius:3px;outline:none;appearance:none}
+input[type="range"]::-webkit-slider-thumb{appearance:none;width:16px;height:16px;background:#a29bfe;border-radius:50%;cursor:pointer}
+.color-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.color-row label{color:#a0a0b8;font-size:14px;font-weight:bold}
+input[type="color"]{border:none;background:none;width:30px;height:30px;cursor:pointer}
+input[type="color"]::-webkit-color-swatch-wrapper{padding:0}
+input[type="color"]::-webkit-color-swatch{border:none;border-radius:6px}
+select{width:100%;background:#1a1a2e;border:1px solid rgba(255,255,255,0.1);color:#fff;padding:10px;border-radius:8px;outline:none}
+
+.preview-wrapper{flex:1;background:#12121a;border-radius:16px;padding:20px;display:flex;flex-direction:column}
+.preview-container{flex:1;background:#e0e0e0;border-radius:12px;overflow:hidden;position:relative;min-height:300px}
+.code-panel{background:#0a0a0f;padding:15px;border-radius:12px;margin-top:20px;font-family:monospace;font-size:13px;color:#55efc4;border:1px solid rgba(255,255,255,0.05);white-space:pre-wrap;position:relative;max-height:250px;overflow:auto}
+.copy-btn{position:absolute;top:10px;right:10px;background:#a29bfe;color:#1a1a2e;border:none;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:bold}
+
+/* Dynamic Navbar CSS is injected via JS */
+</style>
+</head>
+<body>
+<div class="controls">
+    <h1>🧩 Navbar Builder</h1>
+    
+    <div class="control-group">
+        <label style="color:#a0a0b8;font-size:12px;font-weight:bold;margin-bottom:8px;display:block">Layout</label>
+        <select id="layout" onchange="updateNav()">
+            <option value="space-between">Logo Left - Links Right</option>
+            <option value="flex-start">Logo Left - Links Left</option>
+            <option value="center">Logo Center - Links Center</option>
+        </select>
+    </div>
+    
+    <div class="color-row">
+        <label>Background Color</label>
+        <input type="color" id="bgColor" value="#ffffff" oninput="updateNav()">
+    </div>
+    <div class="color-row">
+        <label>Text/Link Color</label>
+        <input type="color" id="textColor" value="#333333" oninput="updateNav()">
+    </div>
+    <div class="color-row">
+        <label>Hover Color</label>
+        <input type="color" id="hoverColor" value="#a29bfe" oninput="updateNav()">
+    </div>
+    
+    <hr style="border:0;border-top:1px solid rgba(255,255,255,0.1);margin:20px 0">
+    
+    <div class="control-group">
+        <div class="control-header"><span>Padding</span> <span id="paddingVal">20px</span></div>
+        <input type="range" id="padding" min="0" max="50" value="20" oninput="updateNav()">
+    </div>
+    <div class="control-group">
+        <div class="control-header"><span>Font Size</span> <span id="fsVal">16px</span></div>
+        <input type="range" id="fs" min="12" max="24" value="16" oninput="updateNav()">
+    </div>
+    <div class="control-group">
+        <div class="control-header"><span>Shadow Blur</span> <span id="shadowVal">10px</span></div>
+        <input type="range" id="shadow" min="0" max="30" value="10" oninput="updateNav()">
+    </div>
+</div>
+
+<div class="preview-wrapper">
+    <div class="preview-container">
+        <style id="dynamicStyles"></style>
+        <nav class="custom-nav" id="demoNav">
+            <div class="nav-logo">BrandLogo</div>
+            <ul class="nav-links">
+                <li><a href="#">Home</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Services</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </nav>
+    </div>
+    <div class="code-panel">
+        <button class="copy-btn" id="copyBtn" onclick="copyCode()">Copy HTML/CSS</button>
+        <div id="codeOut"></div>
+    </div>
+</div>
+
+<script>
+const styleTag = document.getElementById('dynamicStyles');
+const codeOut = document.getElementById('codeOut');
+
+function updateNav() {
+    const layout = document.getElementById('layout').value;
+    const bg = document.getElementById('bgColor').value;
+    const color = document.getElementById('textColor').value;
+    const hover = document.getElementById('hoverColor').value;
+    const padding = document.getElementById('padding').value;
+    const fs = document.getElementById('fs').value;
+    const shadow = document.getElementById('shadow').value;
+
+    document.getElementById('paddingVal').textContent = padding + 'px';
+    document.getElementById('fsVal').textContent = fs + 'px';
+    document.getElementById('shadowVal').textContent = shadow + 'px';
+
+    const css = `.custom-nav {
+  display: flex;
+  justify-content: ${layout};
+  align-items: center;
+  background-color: ${bg};
+  padding: ${padding}px 40px;
+  box-shadow: 0 4px ${shadow}px rgba(0,0,0,0.1);
+  font-family: sans-serif;
+}
+.custom-nav .nav-logo {
+  font-size: ${parseInt(fs) + 6}px;
+  font-weight: bold;
+  color: ${color};
+}
+.custom-nav .nav-links {
+  list-style: none;
+  display: flex;
+  gap: 20px;
+  margin: 0;
+  padding: 0;
+}
+.custom-nav .nav-links a {
+  text-decoration: none;
+  color: ${color};
+  font-size: ${fs}px;
+  transition: color 0.2s;
+}
+.custom-nav .nav-links a:hover {
+  color: ${hover};
+}`;
+    
+    styleTag.textContent = css;
+
+    const html = `<nav class="custom-nav">
+  <div class="nav-logo">BrandLogo</div>
+  <ul class="nav-links">
+    <li><a href="#">Home</a></li>
+    <li><a href="#">About</a></li>
+    <li><a href="#">Services</a></li>
+    <li><a href="#">Contact</a></li>
+  </ul>
+</nav>`;
+
+    codeOut.textContent = `/* CSS */\n${css}\n\n<!-- HTML -->\n${html}`;
+}
+
+function copyCode() {
+    navigator.clipboard.writeText(codeOut.textContent);
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy HTML/CSS', 1500);
+}
+
+updateNav();
+</script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>URL Shortener UI</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0a0a0f;color:#f0f0f5;display:flex;align-items:center;justify-content:center;min-height:100vh}
+.container{background:#16162a;padding:40px;border-radius:24px;width:100%;max-width:550px;box-shadow:0 15px 35px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.05);text-align:center}
+h1{margin-bottom:10px;background:linear-gradient(135deg,#00b894,#0984e3);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+p{color:#a0a0b8;font-size:14px;margin-bottom:30px}
+.input-group{display:flex;background:#1a1a2e;border:1px solid rgba(255,255,255,0.1);border-radius:12px;overflow:hidden;margin-bottom:30px;transition:border-color 0.2s}
+.input-group:focus-within{border-color:#00b894}
+input{flex:1;padding:15px 20px;background:transparent;border:none;color:#fff;font-size:16px;outline:none}
+button{padding:15px 25px;background:#00b894;color:#1a1a2e;border:none;font-size:16px;font-weight:bold;cursor:pointer;transition:background 0.2s}
+button:hover{background:#00a383}
+.result-box{background:#12121a;border:1px solid rgba(255,255,255,0.05);padding:20px;border-radius:12px;display:none;animation:fadeIn 0.3s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.short-url{font-size:20px;color:#00b894;margin-bottom:15px;word-break:break-all}
+.copy-btn{width:100%;background:#2a2a3e;color:#fff;border-radius:8px;padding:12px;margin:0}
+.copy-btn:hover{background:#3a3a4e}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>🔗 URL Shortener</h1>
+    <p>Paste your long URL below to get a short link.</p>
+    
+    <div class="input-group">
+        <input type="url" id="longUrl" placeholder="https://very-long-url.com/...">
+        <button onclick="shorten()" id="shortenBtn">Shorten</button>
+    </div>
+    
+    <div class="result-box" id="resultBox">
+        <p style="margin-bottom:5px">Your short URL:</p>
+        <div class="short-url" id="shortUrl"></div>
+        <button class="copy-btn" id="copyBtn" onclick="copyUrl()">Copy to Clipboard</button>
+    </div>
+</div>
+
+<script>
+const longUrlEl = document.getElementById('longUrl');
+const resultBox = document.getElementById('resultBox');
+const shortUrlEl = document.getElementById('shortUrl');
+const shortenBtn = document.getElementById('shortenBtn');
+const copyBtn = document.getElementById('copyBtn');
+
+function shorten() {
+    const url = longUrlEl.value.trim();
+    if(!url) return;
+    
+    shortenBtn.textContent = '...';
+    
+    // Simulate API call for URL shortener UI
+    setTimeout(() => {
+        const hash = Math.random().toString(36).substring(2, 8);
+        const short = `https://sh.rt/${hash}`;
+        
+        shortUrlEl.textContent = short;
+        resultBox.style.display = 'block';
+        shortenBtn.textContent = 'Shorten';
+        copyBtn.textContent = 'Copy to Clipboard';
+        copyBtn.style.background = '#2a2a3e';
+    }, 800);
+}
+
+function copyUrl() {
+    navigator.clipboard.writeText(shortUrlEl.textContent);
+    copyBtn.textContent = 'Copied! ✓';
+    copyBtn.style.background = '#00b894';
+}
+
+longUrlEl.addEventListener('keypress', e => { if(e.key === 'Enter') shorten(); });
+</script>
+</body>
+</html>
