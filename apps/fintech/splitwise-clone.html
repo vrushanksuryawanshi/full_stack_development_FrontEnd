@@ -1,0 +1,50 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Split Bills</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:#0a0a14;color:#eee;min-height:100vh;padding:24px}
+        .hdr{display:flex;align-items:center;gap:10px;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.08)}
+        .hdr h1{font-size:20px;font-weight:700}.hdr .ico{font-size:28px}
+        .bdg{padding:3px 10px;background:#10b98122;color:#10b981;border-radius:20px;font-size:10px;font-weight:600}
+        .crd{background:#12122a;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:20px;margin-bottom:16px}
+        .crd h3{font-size:15px;margin-bottom:8px;color:#10b981}
+        .crd p{font-size:13px;color:#888;line-height:1.6}
+        .btn{padding:10px 20px;background:#10b981;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;margin-top:10px}
+        input,textarea{width:100%;padding:10px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:#eee;margin-top:10px;outline:none}
+        input:focus,textarea:focus{border-color:#10b981}
+        .sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:20px}
+        .sb{background:#12122a;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:14px;text-align:center}
+        .sb .v{font-size:22px;font-weight:800;color:#10b981}
+        .sb .l{font-size:10px;color:#666;margin-top:4px;text-transform:uppercase}
+        .list{margin-top:16px}
+        .li{display:flex;justify-content:space-between;align-items:center;padding:12px;background:rgba(255,255,255,.03);border-radius:8px;margin-bottom:8px}
+        .li .del{background:none;border:none;color:#ef4444;cursor:pointer}
+    </style></head><body>
+<div class="hdr"><span class="ico">💳</span><h1>Split Bills</h1><span class="bdg">FINTECH App</span></div>
+
+            <div class="sg">
+                <div class="sb"><div class="v" id="s1">1,024</div><div class="l">Total Volume</div></div>
+                <div class="sb"><div class="v" id="s2">$45.2K</div><div class="l">Revenue</div></div>
+                <div class="sb"><div class="v" id="s3">+12%</div><div class="l">Growth</div></div>
+            </div>
+            <div class="crd">
+                <h3>Recent Activity</h3>
+                <div class="list" id="ls"></div>
+                <button class="btn" onclick="gen()">Simulate Action</button>
+            </div>
+        
+<script>
+            let items = [];
+            function gen() {
+                items.unshift('Action completed at ' + new Date().toLocaleTimeString());
+                if(items.length > 5) items.pop();
+                document.getElementById('s1').innerText = Math.floor(Math.random()*5000);
+                render();
+            }
+            function render() {
+                document.getElementById('ls').innerHTML = items.length ? 
+                    items.map(i=>'<div class="li">'+i+'</div>').join('') : '<p style="color:#666">No activity yet.</p>';
+            }
+            render();
+        </script>
+</body></html>

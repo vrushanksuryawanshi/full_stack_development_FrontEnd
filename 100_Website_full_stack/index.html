@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Full-Stack Hub — 100 powerful full-stack web applications in one stunning dashboard. SaaS, AI, Fintech, Social, E-Commerce, DevTools, Education & Real-Time apps.">
+    <title>Full-Stack Hub — 100 Apps Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/dashboard.css">
+</head>
+<body>
+    <!-- Animated background -->
+    <div class="bg-animation">
+        <div class="bg-orb bg-orb-1"></div>
+        <div class="bg-orb bg-orb-2"></div>
+        <div class="bg-orb bg-orb-3"></div>
+        <div class="bg-orb bg-orb-4"></div>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <span class="logo-icon">🚀</span>
+                <span class="logo-text">FullStack Hub</span>
+            </div>
+            <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle Sidebar">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+
+        <div class="sidebar-search">
+            <div class="search-wrapper">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                </svg>
+                <input type="text" id="searchInput" placeholder="Search 100 apps..." autocomplete="off">
+                <kbd class="search-shortcut">Ctrl+K</kbd>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <button class="nav-item active" data-category="all" id="nav-all">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">All Apps</span>
+                <span class="nav-count" id="count-all">100</span>
+            </button>
+            <button class="nav-item" data-category="favorites" id="nav-favorites">
+                <span class="nav-icon">⭐</span>
+                <span class="nav-label">Favorites</span>
+                <span class="nav-count" id="count-favorites">0</span>
+            </button>
+            <button class="nav-item" data-category="recent" id="nav-recent">
+                <span class="nav-icon">🕐</span>
+                <span class="nav-label">Recently Used</span>
+                <span class="nav-count" id="count-recent">0</span>
+            </button>
+
+            <div class="nav-divider"></div>
+            <p class="nav-section-title">Categories</p>
+
+            <button class="nav-item" data-category="saas" id="nav-saas">
+                <span class="nav-icon">💼</span>
+                <span class="nav-label">SaaS / Productivity</span>
+                <span class="nav-count">20</span>
+            </button>
+            <button class="nav-item" data-category="ai-ml" id="nav-ai-ml">
+                <span class="nav-icon">🤖</span>
+                <span class="nav-label">AI / ML Apps</span>
+                <span class="nav-count">15</span>
+            </button>
+            <button class="nav-item" data-category="fintech" id="nav-fintech">
+                <span class="nav-icon">💰</span>
+                <span class="nav-label">Fintech / Data</span>
+                <span class="nav-count">15</span>
+            </button>
+            <button class="nav-item" data-category="social" id="nav-social">
+                <span class="nav-icon">👥</span>
+                <span class="nav-label">Social / Community</span>
+                <span class="nav-count">10</span>
+            </button>
+            <button class="nav-item" data-category="ecommerce" id="nav-ecommerce">
+                <span class="nav-icon">🛒</span>
+                <span class="nav-label">E-Commerce</span>
+                <span class="nav-count">10</span>
+            </button>
+            <button class="nav-item" data-category="devtools" id="nav-devtools">
+                <span class="nav-icon">🛠️</span>
+                <span class="nav-label">Developer Tools</span>
+                <span class="nav-count">10</span>
+            </button>
+            <button class="nav-item" data-category="education" id="nav-education">
+                <span class="nav-icon">📚</span>
+                <span class="nav-label">Education</span>
+                <span class="nav-count">10</span>
+            </button>
+            <button class="nav-item" data-category="realtime" id="nav-realtime">
+                <span class="nav-icon">⚡</span>
+                <span class="nav-label">Real-Time / Advanced</span>
+                <span class="nav-count">10</span>
+            </button>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle Theme">
+                <span class="theme-icon-dark">🌙</span>
+                <span class="theme-icon-light">☀️</span>
+            </button>
+            <span class="footer-text">v2.0 — 100 Full-Stack Apps</span>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        <!-- Top Bar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">
+                    <span></span><span></span><span></span>
+                </button>
+                <h1 class="page-title" id="pageTitle">All Apps</h1>
+                <span class="app-count-badge" id="appCountBadge">100 apps</span>
+            </div>
+            <div class="topbar-right">
+                <div class="view-toggle">
+                    <button class="view-btn active" data-view="grid" id="viewGrid" aria-label="Grid View">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+                    </button>
+                    <button class="view-btn" data-view="list" id="viewList" aria-label="List View">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="4" width="18" height="4" rx="1"/><rect x="3" y="10" width="18" height="4" rx="1"/><rect x="3" y="16" width="18" height="4" rx="1"/></svg>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar" id="statsBar">
+            <div class="stat-card">
+                <span class="stat-value" id="statTotal">100</span>
+                <span class="stat-label">Total Apps</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" id="statCategories">8</span>
+                <span class="stat-label">Categories</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" id="statFavorites">0</span>
+                <span class="stat-label">Favorites</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" id="statSessions">0</span>
+                <span class="stat-label">Total Sessions</span>
+            </div>
+        </div>
+
+        <!-- Apps Grid -->
+        <div class="apps-grid" id="appsGrid">
+            <!-- Dynamically populated -->
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state hidden" id="emptyState">
+            <div class="empty-icon">🔍</div>
+            <h3>No apps found</h3>
+            <p>Try adjusting your search or filters</p>
+        </div>
+    </main>
+
+    <!-- App Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="appModal">
+            <div class="modal-header">
+                <div class="modal-title-area">
+                    <span class="modal-icon" id="modalIcon"></span>
+                    <h2 class="modal-title" id="modalTitle"></h2>
+                </div>
+                <div class="modal-actions">
+                    <button class="modal-fav-btn" id="modalFavBtn" aria-label="Toggle Favorite">⭐</button>
+                    <button class="modal-expand-btn" id="modalExpandBtn" aria-label="Open in new tab">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    </button>
+                    <button class="modal-close-btn" id="modalCloseBtn" aria-label="Close">&times;</button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <iframe id="modalIframe" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" title="App Content"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts/app-registry.js"></script>
+    <script src="scripts/dashboard.js"></script>
+</body>
+</html>
